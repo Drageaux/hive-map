@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import * as express from "express";
 const app = express();
+// https://firebase.google.com/docs/hosting/functions
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript

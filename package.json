@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "concurrently \"cd hive-map-client && npm install\" \"cd hive-map-server && npm install\"",
-    "dev:client": "npm run start --prefix hive-map-client",
-    "dev:server": "npm run start --prefix hive-map-server",
+    "postinstall": "concurrently \"cd hive-map-client && npm install\" \"cd hive-map-server/functions && npm install\"",
+    "dev:client": "npm run dev --prefix hive-map-client",
+    "dev:server": "npm run dev --prefix hive-map-server/functions",
     "build": "",
     "deploy": "",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "prestart": "npm run build --prefix hive-map-client",
-    "start": "npm run start --prefix hive-map-server"
+    "start": "npm run start --prefix hive-map-server/functions"
   },
   "devDependencies": {
     "concurrently": "^5.3.0"
