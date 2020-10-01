@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "concurrently \"cd hive-map-client && npm install\" \"cd hive-map-server && npm install\"",
     "dev:client": "npm run start --prefix hive-map-client",
-    "dev:server": "npm run dev --prefix hive-map-server",
+    "dev:server": "npm run start --prefix hive-map-server",
     "build": "",
     "deploy": "",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
