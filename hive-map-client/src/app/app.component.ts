@@ -8,9 +8,22 @@ import { fabric } from 'fabric';
 })
 export class AppComponent implements OnInit {
   canvas: any;
+  //configuration
+  boxPadding = 16;
+  arrowWidth = 16;
+  strokeWidth = 2;
+  handleSize = 24;
+  currMessage = 'test';
 
   ngOnInit() {
     this.canvas = new fabric.Canvas('canvas');
-    this.canvas.add(new fabric.IText('Hello World !'));
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+
+    this.canvas.add(new fabric.IText('Hello World!'));
+
+    // this.canvas.add(handle).setActiveObject(handle);
+    // this.canvas.on('after:render', this.updateBubble);
+    // updateBubble();
   }
 }
