@@ -7,6 +7,8 @@ import { fabric } from 'fabric';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  // credit: http://bl.ocks.org/robschmuecker/7880033
+
   canvas: any;
   //configuration
   boxPadding = 16;
