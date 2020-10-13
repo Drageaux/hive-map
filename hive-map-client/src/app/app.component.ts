@@ -7,7 +7,7 @@ import * as d3 from 'd3';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  // inspired by credit: http://bl.ocks.org/robschmuecker/7880033
+  // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // model
   currMessage = 'test';
   data: Message = {};
