@@ -22,6 +22,8 @@ export class AppComponent implements OnInit {
   root: d3.HierarchyNode<Message> = exampleData;
   // svg-related objects
   svg;
+  // append a group which holds all nodes and which the zoom Listener can act upon.
+  svgGroup;
 
   // calculate total nodes, max label length
   totalNodes = 0;
@@ -46,6 +48,8 @@ export class AppComponent implements OnInit {
       .attr('height', viewerHeight)
       .attr('class', 'overlay');
     // .call(zoomListener);
+
+    this.svgGroup = this.svg.append('g');
 
     let recurVisit = (parentMessage, visitFn, childrenFn) => {
       if (!parentMessage) {
@@ -76,7 +80,7 @@ export class AppComponent implements OnInit {
     // use the above functions to visit and establish maxLabelLength
     recurVisit(this.data, visit, getNextChildren);
 
-    this.update(this.root);
+    this.update();
   }
 
   /*************************************************************************/
@@ -132,9 +136,11 @@ export class AppComponent implements OnInit {
     // });
 
     // Update the nodes…
-    // node = svgGroup.selectAll('g.node').data(nodes, function (d) {
-    //   return d.id || (d.id = ++i);
-    // });
+    let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
+      return d.id || (d.id = this.i++);
+    });
+
+    console.log(node);
 
     // Enter any new nodes at the parent's previous position.
     // var nodeEnter = node
