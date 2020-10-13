@@ -1,60 +1,60 @@
 {
-  "name": "flare",
+  "text": "flare",
   "children": [
     {
-      "name": "analytics",
+      "text": "analytics",
       "children": [
         {
-          "name": "cluster",
+          "text": "cluster",
           "children": [
             {
-              "name": "AgglomerativeCluster",
+              "text": "AgglomerativeCluster",
               "size": 3938
             },
             {
-              "name": "CommunityStructure",
+              "text": "CommunityStructure",
               "size": 3812
             },
             {
-              "name": "HierarchicalCluster",
+              "text": "HierarchicalCluster",
               "size": 6714
             },
             {
-              "name": "MergeEdge",
+              "text": "MergeEdge",
               "size": 743
             }
           ]
         },
         {
-          "name": "graph",
+          "text": "graph",
           "children": [
             {
-              "name": "BetweennessCentrality",
+              "text": "BetweennessCentrality",
               "size": 3534
             },
             {
-              "name": "LinkDistance",
+              "text": "LinkDistance",
               "size": 5731
             },
             {
-              "name": "MaxFlowMinCut",
+              "text": "MaxFlowMinCut",
               "size": 7840
             },
             {
-              "name": "ShortestPaths",
+              "text": "ShortestPaths",
               "size": 5914
             },
             {
-              "name": "SpanningTree",
+              "text": "SpanningTree",
               "size": 3416
             }
           ]
         },
         {
-          "name": "optimization",
+          "text": "optimization",
           "children": [
             {
-              "name": "AspectRatioBanker",
+              "text": "AspectRatioBanker",
               "size": 7074
             }
           ]
@@ -62,976 +62,976 @@
       ]
     },
     {
-      "name": "animate",
+      "text": "animate",
       "children": [
         {
-          "name": "Easing",
+          "text": "Easing",
           "size": 17010
         },
         {
-          "name": "FunctionSequence",
+          "text": "FunctionSequence",
           "size": 5842
         },
         {
-          "name": "interpolate",
+          "text": "interpolate",
           "children": [
             {
-              "name": "ArrayInterpolator",
+              "text": "ArrayInterpolator",
               "size": 1983
             },
             {
-              "name": "ColorInterpolator",
+              "text": "ColorInterpolator",
               "size": 2047
             },
             {
-              "name": "DateInterpolator",
+              "text": "DateInterpolator",
               "size": 1375
             },
             {
-              "name": "Interpolator",
+              "text": "Interpolator",
               "size": 8746
             },
             {
-              "name": "MatrixInterpolator",
+              "text": "MatrixInterpolator",
               "size": 2202
             },
             {
-              "name": "NumberInterpolator",
+              "text": "NumberInterpolator",
               "size": 1382
             },
             {
-              "name": "ObjectInterpolator",
+              "text": "ObjectInterpolator",
               "size": 1629
             },
             {
-              "name": "PointInterpolator",
+              "text": "PointInterpolator",
               "size": 1675
             },
             {
-              "name": "RectangleInterpolator",
+              "text": "RectangleInterpolator",
               "size": 2042
             }
           ]
         },
         {
-          "name": "ISchedulable",
+          "text": "ISchedulable",
           "size": 1041
         },
         {
-          "name": "Parallel",
+          "text": "Parallel",
           "size": 5176
         },
         {
-          "name": "Pause",
+          "text": "Pause",
           "size": 449
         },
         {
-          "name": "Scheduler",
+          "text": "Scheduler",
           "size": 5593
         },
         {
-          "name": "Sequence",
+          "text": "Sequence",
           "size": 5534
         },
         {
-          "name": "Transition",
+          "text": "Transition",
           "size": 9201
         },
         {
-          "name": "Transitioner",
+          "text": "Transitioner",
           "size": 19975
         },
         {
-          "name": "TransitionEvent",
+          "text": "TransitionEvent",
           "size": 1116
         },
         {
-          "name": "Tween",
+          "text": "Tween",
           "size": 6006
         }
       ]
     },
     {
-      "name": "data",
+      "text": "data",
       "children": [
         {
-          "name": "converters",
+          "text": "converters",
           "children": [
             {
-              "name": "Converters",
+              "text": "Converters",
               "size": 721
             },
             {
-              "name": "DelimitedTextConverter",
+              "text": "DelimitedTextConverter",
               "size": 4294
             },
             {
-              "name": "GraphMLConverter",
+              "text": "GraphMLConverter",
               "size": 9800
             },
             {
-              "name": "IDataConverter",
+              "text": "IDataConverter",
               "size": 1314
             },
             {
-              "name": "JSONConverter",
+              "text": "JSONConverter",
               "size": 2220
             }
           ]
         },
         {
-          "name": "DataField",
+          "text": "DataField",
           "size": 1759
         },
         {
-          "name": "DataSchema",
+          "text": "DataSchema",
           "size": 2165
         },
         {
-          "name": "DataSet",
+          "text": "DataSet",
           "size": 586
         },
         {
-          "name": "DataSource",
+          "text": "DataSource",
           "size": 3331
         },
         {
-          "name": "DataTable",
+          "text": "DataTable",
           "size": 772
         },
         {
-          "name": "DataUtil",
+          "text": "DataUtil",
           "size": 3322
         }
       ]
     },
     {
-      "name": "display",
+      "text": "display",
       "children": [
         {
-          "name": "DirtySprite",
+          "text": "DirtySprite",
           "size": 8833
         },
         {
-          "name": "LineSprite",
+          "text": "LineSprite",
           "size": 1732
         },
         {
-          "name": "RectSprite",
+          "text": "RectSprite",
           "size": 3623
         },
         {
-          "name": "TextSprite",
+          "text": "TextSprite",
           "size": 10066
         }
       ]
     },
     {
-      "name": "flex",
+      "text": "flex",
       "children": [
         {
-          "name": "FlareVis",
+          "text": "FlareVis",
           "size": 4116
         }
       ]
     },
     {
-      "name": "physics",
+      "text": "physics",
       "children": [
         {
-          "name": "DragForce",
+          "text": "DragForce",
           "size": 1082
         },
         {
-          "name": "GravityForce",
+          "text": "GravityForce",
           "size": 1336
         },
         {
-          "name": "IForce",
+          "text": "IForce",
           "size": 319
         },
         {
-          "name": "NBodyForce",
+          "text": "NBodyForce",
           "size": 10498
         },
         {
-          "name": "Particle",
+          "text": "Particle",
           "size": 2822
         },
         {
-          "name": "Simulation",
+          "text": "Simulation",
           "size": 9983
         },
         {
-          "name": "Spring",
+          "text": "Spring",
           "size": 2213
         },
         {
-          "name": "SpringForce",
+          "text": "SpringForce",
           "size": 1681
         }
       ]
     },
     {
-      "name": "query",
+      "text": "query",
       "children": [
         {
-          "name": "AggregateExpression",
+          "text": "AggregateExpression",
           "size": 1616
         },
         {
-          "name": "And",
+          "text": "And",
           "size": 1027
         },
         {
-          "name": "Arithmetic",
+          "text": "Arithmetic",
           "size": 3891
         },
         {
-          "name": "Average",
+          "text": "Average",
           "size": 891
         },
         {
-          "name": "BinaryExpression",
+          "text": "BinaryExpression",
           "size": 2893
         },
         {
-          "name": "Comparison",
+          "text": "Comparison",
           "size": 5103
         },
         {
-          "name": "CompositeExpression",
+          "text": "CompositeExpression",
           "size": 3677
         },
         {
-          "name": "Count",
+          "text": "Count",
           "size": 781
         },
         {
-          "name": "DateUtil",
+          "text": "DateUtil",
           "size": 4141
         },
         {
-          "name": "Distinct",
+          "text": "Distinct",
           "size": 933
         },
         {
-          "name": "Expression",
+          "text": "Expression",
           "size": 5130
         },
         {
-          "name": "ExpressionIterator",
+          "text": "ExpressionIterator",
           "size": 3617
         },
         {
-          "name": "Fn",
+          "text": "Fn",
           "size": 3240
         },
         {
-          "name": "If",
+          "text": "If",
           "size": 2732
         },
         {
-          "name": "IsA",
+          "text": "IsA",
           "size": 2039
         },
         {
-          "name": "Literal",
+          "text": "Literal",
           "size": 1214
         },
         {
-          "name": "Match",
+          "text": "Match",
           "size": 3748
         },
         {
-          "name": "Maximum",
+          "text": "Maximum",
           "size": 843
         },
         {
-          "name": "methods",
+          "text": "methods",
           "children": [
             {
-              "name": "add",
+              "text": "add",
               "size": 593
             },
             {
-              "name": "and",
+              "text": "and",
               "size": 330
             },
             {
-              "name": "average",
+              "text": "average",
               "size": 287
             },
             {
-              "name": "count",
+              "text": "count",
               "size": 277
             },
             {
-              "name": "distinct",
+              "text": "distinct",
               "size": 292
             },
             {
-              "name": "div",
+              "text": "div",
               "size": 595
             },
             {
-              "name": "eq",
+              "text": "eq",
               "size": 594
             },
             {
-              "name": "fn",
+              "text": "fn",
               "size": 460
             },
             {
-              "name": "gt",
+              "text": "gt",
               "size": 603
             },
             {
-              "name": "gte",
+              "text": "gte",
               "size": 625
             },
             {
-              "name": "iff",
+              "text": "iff",
               "size": 748
             },
             {
-              "name": "isa",
+              "text": "isa",
               "size": 461
             },
             {
-              "name": "lt",
+              "text": "lt",
               "size": 597
             },
             {
-              "name": "lte",
+              "text": "lte",
               "size": 619
             },
             {
-              "name": "max",
+              "text": "max",
               "size": 283
             },
             {
-              "name": "min",
+              "text": "min",
               "size": 283
             },
             {
-              "name": "mod",
+              "text": "mod",
               "size": 591
             },
             {
-              "name": "mul",
+              "text": "mul",
               "size": 603
             },
             {
-              "name": "neq",
+              "text": "neq",
               "size": 599
             },
             {
-              "name": "not",
+              "text": "not",
               "size": 386
             },
             {
-              "name": "or",
+              "text": "or",
               "size": 323
             },
             {
-              "name": "orderby",
+              "text": "orderby",
               "size": 307
             },
             {
-              "name": "range",
+              "text": "range",
               "size": 772
             },
             {
-              "name": "select",
+              "text": "select",
               "size": 296
             },
             {
-              "name": "stddev",
+              "text": "stddev",
               "size": 363
             },
             {
-              "name": "sub",
+              "text": "sub",
               "size": 600
             },
             {
-              "name": "sum",
+              "text": "sum",
               "size": 280
             },
             {
-              "name": "update",
+              "text": "update",
               "size": 307
             },
             {
-              "name": "variance",
+              "text": "variance",
               "size": 335
             },
             {
-              "name": "where",
+              "text": "where",
               "size": 299
             },
             {
-              "name": "xor",
+              "text": "xor",
               "size": 354
             },
             {
-              "name": "_",
+              "text": "_",
               "size": 264
             }
           ]
         },
         {
-          "name": "Minimum",
+          "text": "Minimum",
           "size": 843
         },
         {
-          "name": "Not",
+          "text": "Not",
           "size": 1554
         },
         {
-          "name": "Or",
+          "text": "Or",
           "size": 970
         },
         {
-          "name": "Query",
+          "text": "Query",
           "size": 13896
         },
         {
-          "name": "Range",
+          "text": "Range",
           "size": 1594
         },
         {
-          "name": "StringUtil",
+          "text": "StringUtil",
           "size": 4130
         },
         {
-          "name": "Sum",
+          "text": "Sum",
           "size": 791
         },
         {
-          "name": "Variable",
+          "text": "Variable",
           "size": 1124
         },
         {
-          "name": "Variance",
+          "text": "Variance",
           "size": 1876
         },
         {
-          "name": "Xor",
+          "text": "Xor",
           "size": 1101
         }
       ]
     },
     {
-      "name": "scale",
+      "text": "scale",
       "children": [
         {
-          "name": "IScaleMap",
+          "text": "IScaleMap",
           "size": 2105
         },
         {
-          "name": "LinearScale",
+          "text": "LinearScale",
           "size": 1316
         },
         {
-          "name": "LogScale",
+          "text": "LogScale",
           "size": 3151
         },
         {
-          "name": "OrdinalScale",
+          "text": "OrdinalScale",
           "size": 3770
         },
         {
-          "name": "QuantileScale",
+          "text": "QuantileScale",
           "size": 2435
         },
         {
-          "name": "QuantitativeScale",
+          "text": "QuantitativeScale",
           "size": 4839
         },
         {
-          "name": "RootScale",
+          "text": "RootScale",
           "size": 1756
         },
         {
-          "name": "Scale",
+          "text": "Scale",
           "size": 4268
         },
         {
-          "name": "ScaleType",
+          "text": "ScaleType",
           "size": 1821
         },
         {
-          "name": "TimeScale",
+          "text": "TimeScale",
           "size": 5833
         }
       ]
     },
     {
-      "name": "util",
+      "text": "util",
       "children": [
         {
-          "name": "Arrays",
+          "text": "Arrays",
           "size": 8258
         },
         {
-          "name": "Colors",
+          "text": "Colors",
           "size": 10001
         },
         {
-          "name": "Dates",
+          "text": "Dates",
           "size": 8217
         },
         {
-          "name": "Displays",
+          "text": "Displays",
           "size": 12555
         },
         {
-          "name": "Filter",
+          "text": "Filter",
           "size": 2324
         },
         {
-          "name": "Geometry",
+          "text": "Geometry",
           "size": 10993
         },
         {
-          "name": "heap",
+          "text": "heap",
           "children": [
             {
-              "name": "FibonacciHeap",
+              "text": "FibonacciHeap",
               "size": 9354
             },
             {
-              "name": "HeapNode",
+              "text": "HeapNode",
               "size": 1233
             }
           ]
         },
         {
-          "name": "IEvaluable",
+          "text": "IEvaluable",
           "size": 335
         },
         {
-          "name": "IPredicate",
+          "text": "IPredicate",
           "size": 383
         },
         {
-          "name": "IValueProxy",
+          "text": "IValueProxy",
           "size": 874
         },
         {
-          "name": "math",
+          "text": "math",
           "children": [
             {
-              "name": "DenseMatrix",
+              "text": "DenseMatrix",
               "size": 3165
             },
             {
-              "name": "IMatrix",
+              "text": "IMatrix",
               "size": 2815
             },
             {
-              "name": "SparseMatrix",
+              "text": "SparseMatrix",
               "size": 3366
             }
           ]
         },
         {
-          "name": "Maths",
+          "text": "Maths",
           "size": 17705
         },
         {
-          "name": "Orientation",
+          "text": "Orientation",
           "size": 1486
         },
         {
-          "name": "palette",
+          "text": "palette",
           "children": [
             {
-              "name": "ColorPalette",
+              "text": "ColorPalette",
               "size": 6367
             },
             {
-              "name": "Palette",
+              "text": "Palette",
               "size": 1229
             },
             {
-              "name": "ShapePalette",
+              "text": "ShapePalette",
               "size": 2059
             },
             {
-              "name": "SizePalette",
+              "text": "SizePalette",
               "size": 2291
             }
           ]
         },
         {
-          "name": "Property",
+          "text": "Property",
           "size": 5559
         },
         {
-          "name": "Shapes",
+          "text": "Shapes",
           "size": 19118
         },
         {
-          "name": "Sort",
+          "text": "Sort",
           "size": 6887
         },
         {
-          "name": "Stats",
+          "text": "Stats",
           "size": 6557
         },
         {
-          "name": "Strings",
+          "text": "Strings",
           "size": 22026
         }
       ]
     },
     {
-      "name": "vis",
+      "text": "vis",
       "children": [
         {
-          "name": "axis",
+          "text": "axis",
           "children": [
             {
-              "name": "Axes",
+              "text": "Axes",
               "size": 1302
             },
             {
-              "name": "Axis",
+              "text": "Axis",
               "size": 24593
             },
             {
-              "name": "AxisGridLine",
+              "text": "AxisGridLine",
               "size": 652
             },
             {
-              "name": "AxisLabel",
+              "text": "AxisLabel",
               "size": 636
             },
             {
-              "name": "CartesianAxes",
+              "text": "CartesianAxes",
               "size": 6703
             }
           ]
         },
         {
-          "name": "controls",
+          "text": "controls",
           "children": [
             {
-              "name": "AnchorControl",
+              "text": "AnchorControl",
               "size": 2138
             },
             {
-              "name": "ClickControl",
+              "text": "ClickControl",
               "size": 3824
             },
             {
-              "name": "Control",
+              "text": "Control",
               "size": 1353
             },
             {
-              "name": "ControlList",
+              "text": "ControlList",
               "size": 4665
             },
             {
-              "name": "DragControl",
+              "text": "DragControl",
               "size": 2649
             },
             {
-              "name": "ExpandControl",
+              "text": "ExpandControl",
               "size": 2832
             },
             {
-              "name": "HoverControl",
+              "text": "HoverControl",
               "size": 4896
             },
             {
-              "name": "IControl",
+              "text": "IControl",
               "size": 763
             },
             {
-              "name": "PanZoomControl",
+              "text": "PanZoomControl",
               "size": 5222
             },
             {
-              "name": "SelectionControl",
+              "text": "SelectionControl",
               "size": 7862
             },
             {
-              "name": "TooltipControl",
+              "text": "TooltipControl",
               "size": 8435
             }
           ]
         },
         {
-          "name": "data",
+          "text": "data",
           "children": [
             {
-              "name": "Data",
+              "text": "Data",
               "size": 20544
             },
             {
-              "name": "DataList",
+              "text": "DataList",
               "size": 19788
             },
             {
-              "name": "DataSprite",
+              "text": "DataSprite",
               "size": 10349
             },
             {
-              "name": "EdgeSprite",
+              "text": "EdgeSprite",
               "size": 3301
             },
             {
-              "name": "NodeSprite",
+              "text": "NodeSprite",
               "size": 19382
             },
             {
-              "name": "render",
+              "text": "render",
               "children": [
                 {
-                  "name": "ArrowType",
+                  "text": "ArrowType",
                   "size": 698
                 },
                 {
-                  "name": "EdgeRenderer",
+                  "text": "EdgeRenderer",
                   "size": 5569
                 },
                 {
-                  "name": "IRenderer",
+                  "text": "IRenderer",
                   "size": 353
                 },
                 {
-                  "name": "ShapeRenderer",
+                  "text": "ShapeRenderer",
                   "size": 2247
                 }
               ]
             },
             {
-              "name": "ScaleBinding",
+              "text": "ScaleBinding",
               "size": 11275
             },
             {
-              "name": "Tree",
+              "text": "Tree",
               "size": 7147
             },
             {
-              "name": "TreeBuilder",
+              "text": "TreeBuilder",
               "size": 9930
             }
           ]
         },
         {
-          "name": "events",
+          "text": "events",
           "children": [
             {
-              "name": "DataEvent",
+              "text": "DataEvent",
               "size": 2313
             },
             {
-              "name": "SelectionEvent",
+              "text": "SelectionEvent",
               "size": 1880
             },
             {
-              "name": "TooltipEvent",
+              "text": "TooltipEvent",
               "size": 1701
             },
             {
-              "name": "VisualizationEvent",
+              "text": "VisualizationEvent",
               "size": 1117
             }
           ]
         },
         {
-          "name": "legend",
+          "text": "legend",
           "children": [
             {
-              "name": "Legend",
+              "text": "Legend",
               "size": 20859
             },
             {
-              "name": "LegendItem",
+              "text": "LegendItem",
               "size": 4614
             },
             {
-              "name": "LegendRange",
+              "text": "LegendRange",
               "size": 10530
             }
           ]
         },
         {
-          "name": "operator",
+          "text": "operator",
           "children": [
             {
-              "name": "distortion",
+              "text": "distortion",
               "children": [
                 {
-                  "name": "BifocalDistortion",
+                  "text": "BifocalDistortion",
                   "size": 4461
                 },
                 {
-                  "name": "Distortion",
+                  "text": "Distortion",
                   "size": 6314
                 },
                 {
-                  "name": "FisheyeDistortion",
+                  "text": "FisheyeDistortion",
                   "size": 3444
                 }
               ]
             },
             {
-              "name": "encoder",
+              "text": "encoder",
               "children": [
                 {
-                  "name": "ColorEncoder",
+                  "text": "ColorEncoder",
                   "size": 3179
                 },
                 {
-                  "name": "Encoder",
+                  "text": "Encoder",
                   "size": 4060
                 },
                 {
-                  "name": "PropertyEncoder",
+                  "text": "PropertyEncoder",
                   "size": 4138
                 },
                 {
-                  "name": "ShapeEncoder",
+                  "text": "ShapeEncoder",
                   "size": 1690
                 },
                 {
-                  "name": "SizeEncoder",
+                  "text": "SizeEncoder",
                   "size": 1830
                 }
               ]
             },
             {
-              "name": "filter",
+              "text": "filter",
               "children": [
                 {
-                  "name": "FisheyeTreeFilter",
+                  "text": "FisheyeTreeFilter",
                   "size": 5219
                 },
                 {
-                  "name": "GraphDistanceFilter",
+                  "text": "GraphDistanceFilter",
                   "size": 3165
                 },
                 {
-                  "name": "VisibilityFilter",
+                  "text": "VisibilityFilter",
                   "size": 3509
                 }
               ]
             },
             {
-              "name": "IOperator",
+              "text": "IOperator",
               "size": 1286
             },
             {
-              "name": "label",
+              "text": "label",
               "children": [
                 {
-                  "name": "Labeler",
+                  "text": "Labeler",
                   "size": 9956
                 },
                 {
-                  "name": "RadialLabeler",
+                  "text": "RadialLabeler",
                   "size": 3899
                 },
                 {
-                  "name": "StackedAreaLabeler",
+                  "text": "StackedAreaLabeler",
                   "size": 3202
                 }
               ]
             },
             {
-              "name": "layout",
+              "text": "layout",
               "children": [
                 {
-                  "name": "AxisLayout",
+                  "text": "AxisLayout",
                   "size": 6725
                 },
                 {
-                  "name": "BundledEdgeRouter",
+                  "text": "BundledEdgeRouter",
                   "size": 3727
                 },
                 {
-                  "name": "CircleLayout",
+                  "text": "CircleLayout",
                   "size": 9317
                 },
                 {
-                  "name": "CirclePackingLayout",
+                  "text": "CirclePackingLayout",
                   "size": 12003
                 },
                 {
-                  "name": "DendrogramLayout",
+                  "text": "DendrogramLayout",
                   "size": 4853
                 },
                 {
-                  "name": "ForceDirectedLayout",
+                  "text": "ForceDirectedLayout",
                   "size": 8411
                 },
                 {
-                  "name": "IcicleTreeLayout",
+                  "text": "IcicleTreeLayout",
                   "size": 4864
                 },
                 {
-                  "name": "IndentedTreeLayout",
+                  "text": "IndentedTreeLayout",
                   "size": 3174
                 },
                 {
-                  "name": "Layout",
+                  "text": "Layout",
                   "size": 7881
                 },
                 {
-                  "name": "NodeLinkTreeLayout",
+                  "text": "NodeLinkTreeLayout",
                   "size": 12870
                 },
                 {
-                  "name": "PieLayout",
+                  "text": "PieLayout",
                   "size": 2728
                 },
                 {
-                  "name": "RadialTreeLayout",
+                  "text": "RadialTreeLayout",
                   "size": 12348
                 },
                 {
-                  "name": "RandomLayout",
+                  "text": "RandomLayout",
                   "size": 870
                 },
                 {
-                  "name": "StackedAreaLayout",
+                  "text": "StackedAreaLayout",
                   "size": 9121
                 },
                 {
-                  "name": "TreeMapLayout",
+                  "text": "TreeMapLayout",
                   "size": 9191
                 }
               ]
             },
             {
-              "name": "Operator",
+              "text": "Operator",
               "size": 2490
             },
             {
-              "name": "OperatorList",
+              "text": "OperatorList",
               "size": 5248
             },
             {
-              "name": "OperatorSequence",
+              "text": "OperatorSequence",
               "size": 4190
             },
             {
-              "name": "OperatorSwitch",
+              "text": "OperatorSwitch",
               "size": 2581
             },
             {
-              "name": "SortOperator",
+              "text": "SortOperator",
               "size": 2023
             }
           ]
         },
         {
-          "name": "Visualization",
+          "text": "Visualization",
           "size": 16540
         }
       ]

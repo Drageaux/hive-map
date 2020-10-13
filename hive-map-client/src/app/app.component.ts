@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
+import exampleData from '../assets/mindmap-example.json';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ export class AppComponent implements OnInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // model
   currMessage = 'test';
-  data: Message = {};
+  data: Message = exampleData;
 
   // calculate total nodes, max label length
   totalNodes = 0;
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
   root;
 
   ngOnInit() {
+    console.log(this.data);
     let tree = d3.tree().size([1000, 1000]);
 
     // node paths
@@ -72,5 +74,10 @@ export class AppComponent implements OnInit {
 
   pan() {}
 
-  zoom() {}
+  zoom() {
+    // svgGroup.attr(
+    //   'transform',
+    //   'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')'
+    // );
+  }
 }
