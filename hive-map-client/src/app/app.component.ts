@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
         return;
       }
 
-      visitFn(parent);
+      visitFn(parentMessage);
 
       let children = childrenFn(parentMessage);
       if (children) {
