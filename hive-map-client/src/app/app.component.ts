@@ -137,14 +137,10 @@ export class AppComponent implements OnInit {
     });
 
     // Update the nodes…
-    console.log(this.maxLabelLength);
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
       d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
-      console.log(d);
       return d.id || (d.id = this.i++);
     });
-
-    // console.log('node:', node);
 
     // Enter any new nodes at the parent's previous position.
     let nodeEnter = node
@@ -181,82 +177,82 @@ export class AppComponent implements OnInit {
       .style('fill-opacity', 0);
 
     // phantom node to give us mouseover in a radius around it
-    // nodeEnter
-    //   .append('circle')
-    //   .attr('class', 'ghostCircle')
-    //   .attr('r', 30)
-    //   .attr('opacity', 0.2) // change this to zero to hide the target area
-    //   .style('fill', 'red')
-    //   .attr('pointer-events', 'mouseover')
-    //   .on('mouseover', function (node) {
-    //     overCircle(node);
-    //   })
-    //   .on('mouseout', function (node) {
-    //     outCircle(node);
-    //   });
+    nodeEnter
+      .append('circle')
+      .attr('class', 'ghostCircle')
+      .attr('r', 30)
+      .attr('opacity', 0.2) // change this to zero to hide the target area
+      .style('fill', 'red')
+      .attr('pointer-events', 'mouseover')
+      .on('mouseover', function (node) {
+        // overCircle(node);
+      })
+      .on('mouseout', function (node) {
+        // outCircle(node);
+      });
 
     // Update the text to reflect whether node has children or not.
-    // node
-    //   .select('text')
-    //   .attr('x', function (d) {
-    //     return d.children || d._children ? -10 : 10;
-    //   })
-    //   .attr('text-anchor', function (d) {
-    //     return d.children || d._children ? 'end' : 'start';
-    //   })
-    //   .text(function (d) {
-    //     return d.name;
-    //   });
+    node
+      .select('text')
+      .attr('x', function (d) {
+        return d.children || d._children ? -10 : 10;
+      })
+      .attr('text-anchor', function (d) {
+        return d.children || d._children ? 'end' : 'start';
+      })
+      .text(function (d) {
+        return d.name;
+      });
 
     // Change the circle fill depending on whether it has children and is collapsed
-    // node
-    //   .select('circle.nodeCircle')
-    //   .attr('r', 4.5)
-    //   .style('fill', function (d) {
-    //     return d._children ? 'lightsteelblue' : '#fff';
-    //   });
+    node
+      .select('circle.nodeCircle')
+      .attr('r', 4.5)
+      .style('fill', function (d) {
+        return d._children ? 'lightsteelblue' : '#fff';
+      });
 
     // Transition nodes to their new position.
-    // let nodeUpdate = node
-    //   .transition()
-    //   .duration(duration)
-    //   .attr('transform', function (d) {
-    //     return 'translate(' + d.y + ',' + d.x + ')';
-    //   });
+    let nodeUpdate = node
+      .transition()
+      .duration(this.duration)
+      .attr('transform', function (d) {
+        return 'translate(' + d.y + ',' + d.x + ')';
+      });
 
     // Fade the text in
-    // nodeUpdate.select('text').style('fill-opacity', 1);
+    nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Transition exiting nodes to the parent's new position.
-    // let nodeExit = node
-    //   .exit()
-    //   .transition()
-    //   .duration(duration)
-    //   .attr('transform', function (d) {
-    //     return 'translate(' + source.y + ',' + source.x + ')';
-    //   })
-    //   .remove();
+    let nodeExit = node
+      .exit()
+      .transition()
+      .duration(this.duration)
+      .attr('transform', function (d) {
+        // return 'translate(' + source.y + ',' + source.x + ')';
+      })
+      .remove();
 
-    // nodeExit.select('circle').attr('r', 0);
+    nodeExit.select('circle').attr('r', 0);
 
-    // nodeExit.select('text').style('fill-opacity', 0);
+    nodeExit.select('text').style('fill-opacity', 0);
 
     // Update the links…
-    // let link = svgGroup.selectAll('path.link').data(links, function (d) {
-    //   return d.target.id;
-    // });
+    let link = this.svgGroup.selectAll('path.link').data(links, function (d) {
+      return d.target.id;
+    });
 
     // Enter any new links at the parent's previous position.
     // link
     //   .enter()
     //   .insert('path', 'g')
     //   .attr('class', 'link')
-    //   .attr('d', function (d) {
+    //   .attr('d',  (d) => {
     //     var o = {
-    //       x: source.x0,
-    //       y: source.y0,
+    //       // x: source.x0,
+    //       // y: source.y0,
     //     };
-    //     return diagonal({
+    //     return this.diagonal({
     //       source: o,
     //       target: o,
     //     });
@@ -282,10 +278,10 @@ export class AppComponent implements OnInit {
     //   })
     //   .remove();
 
-    // // Stash the old positions for transition.
-    // nodes.forEach(function (d) {
-    //   d.x0 = d.x;
-    //   d.y0 = d.y;
-    // });
+    // Stash the old positions for transition.
+    nodes.forEach(function (d) {
+      // d.x0 = d.x;
+      // d.y0 = d.y;
+    });
   }
 }
