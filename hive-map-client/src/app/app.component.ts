@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
 
@@ -80,7 +81,7 @@ export class AppComponent implements OnInit {
     // use the above functions to visit and establish maxLabelLength
     recurVisit(this.data, visit, getNextChildren);
 
-    this.update();
+    this.update(this.root);
   }
 
   /*************************************************************************/
@@ -100,7 +101,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update() {
+  update(source: d3.HierarchyNode<Message>) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -128,53 +129,56 @@ export class AppComponent implements OnInit {
     console.log(links);
 
     // Set widths between levels based on maxLabelLength.
-    // nodes.forEach((d) => {
-    //   d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
-    //   // alternatively to keep a fixed scale one can set a fixed depth per level
-    //   // Normalize for fixed-depth by commenting out below line
-    //   // d.y = (d.depth * 500); //500px per level.
-    // });
+    nodes.forEach((d) => {
+      // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+      // alternatively to keep a fixed scale one can set a fixed depth per level
+      // Normalize for fixed-depth by commenting out below line
+      // d.y = (d.depth * 500); //500px per level.
+    });
 
     // Update the nodes…
+    console.log(this.maxLabelLength);
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
+      d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+      console.log(d);
       return d.id || (d.id = this.i++);
     });
 
-    console.log(node);
+    // console.log('node:', node);
 
     // Enter any new nodes at the parent's previous position.
-    // var nodeEnter = node
-    //   .enter()
-    //   .append('g')
-    //   .call(dragListener)
-    //   .attr('class', 'node')
-    //   .attr('transform', function (d) {
-    //     return 'translate(' + source.y0 + ',' + source.x0 + ')';
-    //   })
-    //   .on('click', click);
+    var nodeEnter = node
+      .enter()
+      .append('g')
+      // .call(dragListener)
+      .attr('class', 'node')
+      .attr('transform', function (d) {
+        return 'translate(' + window.innerHeight / 2 + ',' + 0 + ')';
+      });
+    // .on('click', click);
 
-    // nodeEnter
-    //   .append('circle')
-    //   .attr('class', 'nodeCircle')
-    //   .attr('r', 0)
-    //   .style('fill', function (d) {
-    //     return d._children ? 'lightsteelblue' : '#fff';
-    //   });
+    nodeEnter
+      .append('circle')
+      .attr('class', 'nodeCircle')
+      .attr('r', 0)
+      .style('fill', (d) => {
+        return d._children ? 'lightsteelblue' : '#fff';
+      });
 
-    // nodeEnter
-    //   .append('text')
-    //   .attr('x', function (d) {
-    //     return d.children || d._children ? -10 : 10;
-    //   })
-    //   .attr('dy', '.35em')
-    //   .attr('class', 'nodeText')
-    //   .attr('text-anchor', function (d) {
-    //     return d.children || d._children ? 'end' : 'start';
-    //   })
-    //   .text(function (d) {
-    //     return d.name;
-    //   })
-    //   .style('fill-opacity', 0);
+    nodeEnter
+      .append('text')
+      .attr('x', function (d) {
+        return d.children || d._children ? -10 : 10;
+      })
+      .attr('dy', '.35em')
+      .attr('class', 'nodeText')
+      .attr('text-anchor', function (d) {
+        return d.children || d._children ? 'end' : 'start';
+      })
+      .text(function (d) {
+        return d.name;
+      })
+      .style('fill-opacity', 0);
 
     // phantom node to give us mouseover in a radius around it
     // nodeEnter
