@@ -158,6 +158,13 @@ export class AppComponent implements OnInit {
       .attr('r', 0)
       .style('fill', (d) => {
         return d._children ? 'lightsteelblue' : '#fff';
+      })
+      // Change the circle fill depending on whether it has children and is collapsed
+      .merge(node)
+      .attr('r', 4.5)
+      .style('fill', (d) => {
+        console.log('test');
+        return d.children || d._children ? 'lightsteelblue' : '#fff';
       });
 
     nodeEnter
@@ -173,21 +180,18 @@ export class AppComponent implements OnInit {
       .text(function (d) {
         return d.name;
       })
-      .style('fill-opacity', 0);
-    // Update the text to reflect whether node has children or not.
-    // .merge(node)
-    // .select('text')
-    // .attr('x', function (d) {
-    //   console.log('test');
-    //   return d.children || d._children ? -10 : 10;
-    // })
-    // .attr('text-anchor', function (d) {
-    //   console.log(d.children);
-    //   return d.children || d._children ? 'end' : 'start';
-    // })
-    // .text(function (d) {
-    //   return d.name;
-    // });
+      .style('fill-opacity', 0)
+      // Update the text to reflect whether node has children or not.
+      .merge(node)
+      .attr('x', function (d) {
+        return d.children || d._children ? -10 : 10;
+      })
+      .attr('text-anchor', function (d) {
+        return d.children || d._children ? 'end' : 'start';
+      })
+      .text(function (d) {
+        return d.name;
+      });
 
     // phantom node to give us mouseover in a radius around it
     nodeEnter
@@ -205,7 +209,7 @@ export class AppComponent implements OnInit {
       });
 
     // Change the circle fill depending on whether it has children and is collapsed
-    nodeEnter
+    node
       .select('circle.nodeCircle')
       .attr('r', 4.5)
       .style('fill', (d) => {
