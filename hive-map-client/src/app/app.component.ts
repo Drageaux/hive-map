@@ -102,6 +102,8 @@ export class AppComponent implements OnInit {
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
   update(source: d3.HierarchyNode<Message>) {
+    console.log(source);
+
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -116,7 +118,7 @@ export class AppComponent implements OnInit {
         });
       }
     };
-    childCount(0, this.currMessage);
+    childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     this.tree = this.tree.size([newHeight, window.innerWidth]);
 
@@ -124,9 +126,6 @@ export class AppComponent implements OnInit {
     const treeRoot = d3.hierarchy(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
-    console.log(treeRoot);
-    console.log(nodes);
-    console.log(links);
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
@@ -175,6 +174,20 @@ export class AppComponent implements OnInit {
         return d.name;
       })
       .style('fill-opacity', 0);
+    // Update the text to reflect whether node has children or not.
+    // .merge(node)
+    // .select('text')
+    // .attr('x', function (d) {
+    //   console.log('test');
+    //   return d.children || d._children ? -10 : 10;
+    // })
+    // .attr('text-anchor', function (d) {
+    //   console.log(d.children);
+    //   return d.children || d._children ? 'end' : 'start';
+    // })
+    // .text(function (d) {
+    //   return d.name;
+    // });
 
     // phantom node to give us mouseover in a radius around it
     nodeEnter
@@ -191,32 +204,20 @@ export class AppComponent implements OnInit {
         // outCircle(node);
       });
 
-    // Update the text to reflect whether node has children or not.
-    node
-      .select('text')
-      .attr('x', function (d) {
-        return d.children || d._children ? -10 : 10;
-      })
-      .attr('text-anchor', function (d) {
-        return d.children || d._children ? 'end' : 'start';
-      })
-      .text(function (d) {
-        return d.name;
-      });
-
     // Change the circle fill depending on whether it has children and is collapsed
-    node
+    nodeEnter
       .select('circle.nodeCircle')
       .attr('r', 4.5)
-      .style('fill', function (d) {
-        return d._children ? 'lightsteelblue' : '#fff';
+      .style('fill', (d) => {
+        return d.children || d._children ? 'lightsteelblue' : '#fff';
       });
 
     // Transition nodes to their new position.
     let nodeUpdate = node
       .transition()
       .duration(this.duration)
-      .attr('transform', function (d) {
+      .attr('transform', (d) => {
+        console.log('test');
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
