@@ -117,7 +117,7 @@ export class AppComponent implements OnInit {
       }
     };
     childCount(0, this.currMessage);
-    var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
+    let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     this.tree = this.tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
@@ -147,7 +147,7 @@ export class AppComponent implements OnInit {
     // console.log('node:', node);
 
     // Enter any new nodes at the parent's previous position.
-    var nodeEnter = node
+    let nodeEnter = node
       .enter()
       .append('g')
       // .call(dragListener)
@@ -217,7 +217,7 @@ export class AppComponent implements OnInit {
     //   });
 
     // Transition nodes to their new position.
-    // var nodeUpdate = node
+    // let nodeUpdate = node
     //   .transition()
     //   .duration(duration)
     //   .attr('transform', function (d) {
@@ -228,7 +228,7 @@ export class AppComponent implements OnInit {
     // nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Transition exiting nodes to the parent's new position.
-    // var nodeExit = node
+    // let nodeExit = node
     //   .exit()
     //   .transition()
     //   .duration(duration)
@@ -242,7 +242,7 @@ export class AppComponent implements OnInit {
     // nodeExit.select('text').style('fill-opacity', 0);
 
     // Update the links…
-    // var link = svgGroup.selectAll('path.link').data(links, function (d) {
+    // let link = svgGroup.selectAll('path.link').data(links, function (d) {
     //   return d.target.id;
     // });
 
