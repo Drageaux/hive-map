@@ -208,14 +208,6 @@ export class AppComponent implements OnInit {
         // outCircle(node);
       });
 
-    // Change the circle fill depending on whether it has children and is collapsed
-    node
-      .select('circle.nodeCircle')
-      .attr('r', 4.5)
-      .style('fill', (d) => {
-        return d.children || d._children ? 'lightsteelblue' : '#fff';
-      });
-
     // Transition nodes to their new position.
     let nodeUpdate = node
       .transition()
