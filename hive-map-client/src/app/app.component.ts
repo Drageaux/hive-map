@@ -209,11 +209,12 @@ export class AppComponent implements OnInit {
       });
 
     // Transition nodes to their new position.
-    let nodeUpdate = node
+    let nodeUpdate = this.svgGroup
+      .selectAll('g.node')
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
-        console.log('test');
+        console.log(d);
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
@@ -221,7 +222,8 @@ export class AppComponent implements OnInit {
     nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Transition exiting nodes to the parent's new position.
-    let nodeExit = node
+    let nodeExit = this.svgGroup
+      .selectAll('g.node')
       .exit()
       .transition()
       .duration(this.duration)
