@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
     .linkHorizontal()
     .x((d) => d[0])
     .y((d) => d[1]); // node paths
-  root: d3.HierarchyNode<Message> = exampleData;
+  root: d3.HierarchyNode<Message> = d3.hierarchy(this.data);
   // svg-related objects
   svg;
   // append a group which holds all nodes and which the zoom Listener can act upon.
@@ -121,9 +121,12 @@ export class AppComponent implements OnInit {
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     this.tree = this.tree.size([newHeight, window.innerWidth]);
+    this.root.eachBefore(() => {
+      console.log('test');
+    });
 
     // Compute the new tree layout.
-    const treeRoot = d3.hierarchy(this.root);
+    const treeRoot = this.tree(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
@@ -137,7 +140,8 @@ export class AppComponent implements OnInit {
 
     // Update the nodes…
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
-      d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+      console.log(d);
+      // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
       return d.id || (d.id = this.i++);
     });
 
@@ -163,7 +167,6 @@ export class AppComponent implements OnInit {
       .merge(node)
       .attr('r', 4.5)
       .style('fill', (d) => {
-        console.log('test');
         return d.children || d._children ? 'lightsteelblue' : '#fff';
       });
 
@@ -214,7 +217,6 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
-        console.log(d);
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
