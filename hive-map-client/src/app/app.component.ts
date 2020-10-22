@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
+import { DefaultLinkObject } from 'd3';
 
 @Component({
   selector: 'app-root',
@@ -15,12 +16,12 @@ export class AppComponent implements OnInit {
   data: Message = exampleData;
 
   // d3 set up
-  tree = d3.tree().size([1000, 1000]);
+  d3tree = d3.tree<Message>().size([1000, 1000]);
   diagonal = d3
     .linkHorizontal()
-    .x((d) => d[0])
-    .y((d) => d[1]); // node paths
-  root: d3.HierarchyNode<Message> = d3.hierarchy(this.data);
+    .x((d) => d[1])
+    .y((d) => d[0]); // node paths
+  root: d3.HierarchyPointNode<Message> = this.d3tree(d3.hierarchy(this.data));
   // svg-related objects
   svg;
   // append a group which holds all nodes and which the zoom Listener can act upon.
@@ -101,9 +102,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update(source: d3.HierarchyNode<Message>) {
-    console.log(source);
-
+  update(source: d3.HierarchyPointNode<Message>) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -120,19 +119,16 @@ export class AppComponent implements OnInit {
     };
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
-    this.tree = this.tree.size([newHeight, window.innerWidth]);
-    this.root.eachBefore(() => {
-      console.log('test');
-    });
+    this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
-    const treeRoot = this.tree(this.root);
+    const treeRoot = this.d3tree(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
-      // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+      d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = (d.depth * 500); //500px per level.
@@ -140,7 +136,6 @@ export class AppComponent implements OnInit {
 
     // Update the nodes…
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
-      console.log(d);
       // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
       return d.id || (d.id = this.i++);
     });
@@ -229,8 +224,8 @@ export class AppComponent implements OnInit {
       .exit()
       .transition()
       .duration(this.duration)
-      .attr('transform', function (d) {
-        // return 'translate(' + source.y + ',' + source.x + ')';
+      .attr('transform', (d) => {
+        return 'translate(' + source.y + ',' + source.x + ')';
       })
       .remove();
 
@@ -239,43 +234,59 @@ export class AppComponent implements OnInit {
     nodeExit.select('text').style('fill-opacity', 0);
 
     // Update the links…
-    let link = this.svgGroup.selectAll('path.link').data(links, function (d) {
+    let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
+      console.log(d);
       return d.target.id;
     });
 
     // Enter any new links at the parent's previous position.
-    // link
-    //   .enter()
-    //   .insert('path', 'g')
-    //   .attr('class', 'link')
-    //   .attr('d',  (d) => {
-    //     var o = {
-    //       // x: source.x0,
-    //       // y: source.y0,
-    //     };
-    //     return this.diagonal({
-    //       source: o,
-    //       target: o,
-    //     });
-    //   });
+    link
+      .enter()
+      .insert('path', 'g')
+      .attr('class', 'link')
+      .attr('d', (d) => {
+        let data = {
+          source: {
+            x: source.x,
+            y: source.y,
+          },
+          target: {
+            x: source.x,
+            y: source.y,
+          },
+        };
+        // console.log(d);
+        return this.diagonal({
+          source: [data.source.x, data.source.y],
+          target: [data.source.x, data.source.y],
+        });
+        // .source((d) => [data.source.x, data.source.y])
+        // .target((d) => [data.target.x, data.target.y]);
+      });
 
     // Transition links to their new position.
-    // link.transition().duration(duration).attr('d', diagonal);
+    // link.transition().duration(this.duration).attr('d', this.diagonal);
 
     // Transition exiting nodes to the parent's new position.
     // link
     //   .exit()
     //   .transition()
-    //   .duration(duration)
+    //   .duration(this.duration)
     //   .attr('d', function (d) {
-    //     var o = {
-    //       x: source.x,
-    //       y: source.y,
+    //     let data = {
+    //       source: {
+    //         x: source.x,
+    //         y: source.y,
+    //       },
+    //       target: {
+    //         x: source.x,
+    //         y: source.y,
+    //       },
     //     };
-    //     return diagonal({
-    //       source: o,
-    //       target: o,
-    //     });
+    //     console.log(d);
+    //     return this.diagonal
+    //       .source((d) => [data.source.x, data.source.y])
+    //       .target((d) => [data.target.x, data.target.y]);
     //   })
     //   .remove();
 
