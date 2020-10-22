@@ -17,10 +17,9 @@ export class AppComponent implements OnInit {
 
   // d3 set up
   d3tree = d3.tree<Message>().size([1000, 1000]);
-  diagonal = d3
-    .linkHorizontal()
-    .x((d) => d[1])
-    .y((d) => d[0]); // node paths
+  diagonal = d3.linkHorizontal();
+  // .x((d) => d[1])
+  // .y((d) => d[0]); // node paths
   root: d3.HierarchyPointNode<Message> = this.d3tree(d3.hierarchy(this.data));
   // svg-related objects
   svg;
@@ -125,6 +124,7 @@ export class AppComponent implements OnInit {
     const treeRoot = this.d3tree(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
+    console.log(links);
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
@@ -175,8 +175,9 @@ export class AppComponent implements OnInit {
       .attr('text-anchor', function (d) {
         return d.children || d._children ? 'end' : 'start';
       })
-      .text(function (d) {
-        return d.name;
+      .text((d) => {
+        console.log(d);
+        return d.data.text;
       })
       .style('fill-opacity', 0)
       // Update the text to reflect whether node has children or not.
@@ -187,8 +188,8 @@ export class AppComponent implements OnInit {
       .attr('text-anchor', function (d) {
         return d.children || d._children ? 'end' : 'start';
       })
-      .text(function (d) {
-        return d.name;
+      .text((d) => {
+        return d.data.text;
       });
 
     // phantom node to give us mouseover in a radius around it
@@ -235,7 +236,6 @@ export class AppComponent implements OnInit {
 
     // Update the links…
     let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
-      console.log(d);
       return d.target.id;
     });
 
@@ -245,48 +245,31 @@ export class AppComponent implements OnInit {
       .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d) => {
-        let data = {
-          source: {
-            x: source.x,
-            y: source.y,
-          },
-          target: {
-            x: source.x,
-            y: source.y,
-          },
-        };
-        // console.log(d);
         return this.diagonal({
-          source: [data.source.x, data.source.y],
-          target: [data.source.x, data.source.y],
+          source: [source.x, source.y],
+          target: [source.x, source.y],
         });
-        // .source((d) => [data.source.x, data.source.y])
-        // .target((d) => [data.target.x, data.target.y]);
       });
 
     // Transition links to their new position.
-    // link.transition().duration(this.duration).attr('d', this.diagonal);
+    link
+      .transition()
+      .duration(this.duration)
+      .attr('d', (d) => {
+        console.log(d);
+        return this.diagonal(d);
+      });
 
     // Transition exiting nodes to the parent's new position.
     // link
     //   .exit()
     //   .transition()
     //   .duration(this.duration)
-    //   .attr('d', function (d) {
-    //     let data = {
-    //       source: {
-    //         x: source.x,
-    //         y: source.y,
-    //       },
-    //       target: {
-    //         x: source.x,
-    //         y: source.y,
-    //       },
-    //     };
-    //     console.log(d);
-    //     return this.diagonal
-    //       .source((d) => [data.source.x, data.source.y])
-    //       .target((d) => [data.target.x, data.target.y]);
+    //   .attr('d', (d) => {
+    //     return this.diagonal({
+    //       source: [source.x, source.y],
+    //       target: [source.x, source.y],
+    //     });
     //   })
     //   .remove();
 
