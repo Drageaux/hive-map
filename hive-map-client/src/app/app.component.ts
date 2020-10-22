@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
-import { DefaultLinkObject } from 'd3';
+import { DefaultLinkObject, HierarchyPointLink } from 'd3';
 
 @Component({
   selector: 'app-root',
@@ -82,7 +82,18 @@ export class AppComponent implements OnInit {
     // use the above functions to visit and establish maxLabelLength
     recurVisit(this.data, visit, getNextChildren);
 
+    this.sort();
+    // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
+    let zoomListener = d3
+      .zoom()
+      .scaleExtent([0.1, 3])
+      .on('zoom', () => {
+        this.svgGroup.attr('transform', d3);
+      });
+
     this.update(this.root);
+
+    this.centerNode(this.root);
   }
 
   /*************************************************************************/
@@ -90,13 +101,64 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   sort() {}
 
-  pan() {}
+  pan(domNode, direction) {
+    // var speed = panSpeed;
+    // if (panTimer) {
+    //   clearTimeout(panTimer);
+    //   translateCoords = d3.transform(svgGroup.attr('transform'));
+    //   if (direction == 'left' || direction == 'right') {
+    //     translateX =
+    //       direction == 'left'
+    //         ? translateCoords.translate[0] + speed
+    //         : translateCoords.translate[0] - speed;
+    //     translateY = translateCoords.translate[1];
+    //   } else if (direction == 'up' || direction == 'down') {
+    //     translateX = translateCoords.translate[0];
+    //     translateY =
+    //       direction == 'up'
+    //         ? translateCoords.translate[1] + speed
+    //         : translateCoords.translate[1] - speed;
+    //   }
+    //   scaleX = translateCoords.scale[0];
+    //   scaleY = translateCoords.scale[1];
+    //   scale = zoomListener.scale();
+    //   svgGroup
+    //     .transition()
+    //     .attr(
+    //       'transform',
+    //       'translate(' + translateX + ',' + translateY + ')scale(' + scale + ')'
+    //     );
+    //   d3.select(domNode)
+    //     .select('g.node')
+    //     .attr('transform', 'translate(' + translateX + ',' + translateY + ')');
+    //   zoomListener.scale(zoomListener.scale());
+    //   zoomListener.translate([translateX, translateY]);
+    //   panTimer = setTimeout(function () {
+    //     pan(domNode, speed, direction);
+    //   }, 50);
+    // }
+  }
 
   zoom() {
-    // svgGroup.attr(
+    // this.svgGroup.attr(
     //   'transform',
     //   'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')'
     // );
+  }
+
+  // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
+  centerNode(source: d3.HierarchyPointNode<Message>) {
+    // let scale = zoomListener.scale();
+    // x = -source.y;
+    // y = -source.x;
+    // x = x * scale + viewerWidth / 2;
+    // y = y * scale + viewerHeight / 2;
+    // d3.select('g')
+    //   .transition()
+    //   .duration(this.duration)
+    //   .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')');
+    // zoomListener.scale(scale);
+    // zoomListener.translate([x, y]);
   }
 
   /*************************************************************************/
@@ -125,7 +187,6 @@ export class AppComponent implements OnInit {
     const treeRoot = this.d3tree(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
-    console.log(links);
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
@@ -177,7 +238,6 @@ export class AppComponent implements OnInit {
         return d.children || d._children ? 'end' : 'start';
       })
       .text((d) => {
-        console.log(d);
         return d.data.text;
       })
       .style('fill-opacity', 0)
@@ -237,6 +297,7 @@ export class AppComponent implements OnInit {
 
     // Update the links…
     let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
+      console.log(d);
       return d.target.id;
     });
 
@@ -245,7 +306,7 @@ export class AppComponent implements OnInit {
       .enter()
       .insert('path', 'g')
       .attr('class', 'link')
-      .attr('d', (d) => {
+      .attr('d', (d: HierarchyPointLink<Message>) => {
         return this.diagonal({
           source: [source.x, source.y],
           target: [source.x, source.y],
@@ -256,23 +317,25 @@ export class AppComponent implements OnInit {
     link
       .transition()
       .duration(this.duration)
-      .attr('d', (d) => {
-        console.log(d);
-        return this.diagonal(d);
-      });
+      .attr('d', (d) =>
+        this.diagonal({
+          source: [d.source.x, d.source.y],
+          target: [d.target.x, d.target.y],
+        })
+      );
 
     // Transition exiting nodes to the parent's new position.
-    // link
-    //   .exit()
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('d', (d) => {
-    //     return this.diagonal({
-    //       source: [source.x, source.y],
-    //       target: [source.x, source.y],
-    //     });
-    //   })
-    //   .remove();
+    link
+      .exit()
+      .transition()
+      .duration(this.duration)
+      .attr('d', (d) => {
+        this.diagonal({
+          source: [d.source.x, d.source.y],
+          target: [d.target.x, d.target.y],
+        });
+      })
+      .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
