@@ -208,8 +208,8 @@ export class AppComponent implements OnInit {
       .append('g')
       // .call(dragListener)
       .attr('class', 'node')
-      .attr('transform', function (d) {
-        return 'translate(' + window.innerHeight / 2 + ',' + 0 + ')';
+      .attr('transform', (d) => {
+        return 'translate(' + source.y + ',' + source.x + ')';
       });
     // .on('click', click);
 
@@ -269,8 +269,8 @@ export class AppComponent implements OnInit {
       });
 
     // Transition nodes to their new position.
-    let nodeUpdate = this.svgGroup
-      .selectAll('g.node')
+    let nodeUpdate = node
+      .merge(nodeEnter)
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
