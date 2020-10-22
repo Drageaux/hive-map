@@ -17,9 +17,10 @@ export class AppComponent implements OnInit {
 
   // d3 set up
   d3tree = d3.tree<Message>().size([1000, 1000]);
-  diagonal = d3.linkHorizontal();
-  // .x((d) => d[1])
-  // .y((d) => d[0]); // node paths
+  diagonal = d3
+    .linkHorizontal()
+    .x((d) => d[1])
+    .y((d) => d[0]); // node paths
   root: d3.HierarchyPointNode<Message> = this.d3tree(d3.hierarchy(this.data));
   // svg-related objects
   svg;
