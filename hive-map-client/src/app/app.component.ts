@@ -297,14 +297,13 @@ export class AppComponent implements OnInit {
 
     // Update the links…
     let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
-      console.log(d);
       return d.target.id;
     });
 
     // Enter any new links at the parent's previous position.
-    link
+    let linkEnter = link
       .enter()
-      .insert('path', 'g')
+      .append('path', 'g')
       .attr('class', 'link')
       .attr('d', (d: HierarchyPointLink<Message>) =>
         this.diagonal({
@@ -315,6 +314,7 @@ export class AppComponent implements OnInit {
 
     // Transition links to their new position.
     link
+      .merge(linkEnter)
       .transition()
       .duration(this.duration)
       .attr('d', (d: HierarchyPointLink<Message>) =>
@@ -331,16 +331,16 @@ export class AppComponent implements OnInit {
       .duration(this.duration)
       .attr('d', (d: HierarchyPointLink<Message>) =>
         this.diagonal({
-          source: [d.source.x, d.source.y],
-          target: [d.target.x, d.target.y],
+          source: [source.x, source.y],
+          target: [source.x, source.y],
         })
       )
       .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      // d.x0 = d.x;
-      // d.y0 = d.y;
+      // d.x = source.x;
+      // d.y = source.y;
     });
   }
 }
