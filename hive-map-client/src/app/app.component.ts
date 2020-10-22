@@ -306,18 +306,18 @@ export class AppComponent implements OnInit {
       .enter()
       .insert('path', 'g')
       .attr('class', 'link')
-      .attr('d', (d: HierarchyPointLink<Message>) => {
-        return this.diagonal({
+      .attr('d', (d: HierarchyPointLink<Message>) =>
+        this.diagonal({
           source: [source.x, source.y],
           target: [source.x, source.y],
-        });
-      });
+        })
+      );
 
     // Transition links to their new position.
     link
       .transition()
       .duration(this.duration)
-      .attr('d', (d) =>
+      .attr('d', (d: HierarchyPointLink<Message>) =>
         this.diagonal({
           source: [d.source.x, d.source.y],
           target: [d.target.x, d.target.y],
@@ -329,12 +329,12 @@ export class AppComponent implements OnInit {
       .exit()
       .transition()
       .duration(this.duration)
-      .attr('d', (d) => {
+      .attr('d', (d: HierarchyPointLink<Message>) =>
         this.diagonal({
           source: [d.source.x, d.source.y],
           target: [d.target.x, d.target.y],
-        });
-      })
+        })
+      )
       .remove();
 
     // Stash the old positions for transition.
