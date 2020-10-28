@@ -33,17 +33,20 @@ export class AppComponent implements OnInit {
   // variables for drag/drop
   selectedNode = null;
   draggingNode = null;
+  // zoom
+  zoomListener;
   // panning variables
   panSpeed = 200;
   panBoundary = 20; // Within 20px from edges will pan when dragging.
+  panTimer;
   // misc. variables
   i = 0;
   duration = 750;
 
   ngOnInit() {
     // size of the diagram
-    var viewerWidth = window.innerWidth;
-    var viewerHeight = window.innerHeight;
+    let viewerWidth = window.innerWidth;
+    let viewerHeight = window.innerHeight;
     this.svg = d3
       .select('#hive-map')
       .attr('width', viewerWidth)
@@ -84,7 +87,7 @@ export class AppComponent implements OnInit {
 
     this.sort();
     // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    let zoomListener = d3
+    this.zoomListener = d3
       .zoom()
       .scaleExtent([0.1, 3])
       .on('zoom', () => {
@@ -102,9 +105,9 @@ export class AppComponent implements OnInit {
   sort() {}
 
   pan(domNode, direction) {
-    // var speed = panSpeed;
-    // if (panTimer) {
-    //   clearTimeout(panTimer);
+    // let speed = this.panSpeed;
+    // if (this.panTimer) {
+    //   clearTimeout(this.panTimer);
     //   translateCoords = d3.transform(svgGroup.attr('transform'));
     //   if (direction == 'left' || direction == 'right') {
     //     translateX =
@@ -133,32 +136,34 @@ export class AppComponent implements OnInit {
     //     .attr('transform', 'translate(' + translateX + ',' + translateY + ')');
     //   zoomListener.scale(zoomListener.scale());
     //   zoomListener.translate([translateX, translateY]);
-    //   panTimer = setTimeout(function () {
-    //     pan(domNode, speed, direction);
+    //   this.panTimer = setTimeout( () => {
+    //     this.pan(domNode, direction);
     //   }, 50);
     // }
   }
 
-  zoom() {
-    // this.svgGroup.attr(
-    //   'transform',
-    //   'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')'
-    // );
-  }
+  // zoom() {
+  //   this.svgGroup.attr(
+  //     'transform',
+  //     'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')'
+  //   );
+  // }
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: d3.HierarchyPointNode<Message>) {
-    // let scale = zoomListener.scale();
-    // x = -source.y;
-    // y = -source.x;
-    // x = x * scale + viewerWidth / 2;
-    // y = y * scale + viewerHeight / 2;
-    // d3.select('g')
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')');
-    // zoomListener.scale(scale);
-    // zoomListener.translate([x, y]);
+    console.log(d3.zoomTransform(this.svgGroup).k);
+    let scale = d3.zoomTransform(this.svgGroup).k;
+    let x = -source.y;
+    let y = -source.x;
+    x = x * scale + window.innerWidth / 2;
+    y = y * scale + window.innerHeight / 2;
+    this.svgGroup
+      .transition()
+      .duration(this.duration)
+      .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
+      // .on("end", () => this.svgGroup.call(this.zoomListener.transform, d3.zoomIdentity.translate(x,y).scale(scale)));
+    // this.zoomListener.scale(scale);
+    // this.zoomListener.translate([x, y]);
   }
 
   /*************************************************************************/
