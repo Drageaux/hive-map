@@ -178,13 +178,12 @@ export class AppComponent implements OnInit {
   }
 
   // Toggle children on click.
-  click(d) {
-    if (d.defaultPrevented) return; // click suppressed
+  click(event, d) {
+    if (event.defaultPrevented) return; // click suppressed
     // d = this.toggleChildren(d);
-    let node = d3.select(d.eventTarget);
-    console.log(node);
+    console.log(d);
     this.update(d);
-    this.centerNode(d);
+    // this.centerNode(d);
   }
 
   /*************************************************************************/
@@ -207,6 +206,7 @@ export class AppComponent implements OnInit {
     };
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
+    console.log('new height', newHeight);
     this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
@@ -214,17 +214,21 @@ export class AppComponent implements OnInit {
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
+    console.log(nodes);
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
       d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = (d.depth * 500); //500px per level.
+      console.log(d.y);
     });
-
+    console.log('done');
     // Update the nodes…
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
       // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+
+      console.log(d.y);
       return d.id || (d.id = this.i++);
     });
 
@@ -239,7 +243,7 @@ export class AppComponent implements OnInit {
       })
       .on('click', (event, d) => {
         console.log(d);
-        return this.click(d);
+        return this.click(event, d);
       });
 
     nodeEnter
@@ -253,7 +257,6 @@ export class AppComponent implements OnInit {
       .merge(node)
       .attr('r', 4.5)
       .style('fill', (d) => {
-        console.log(d);
         return d.children || d._children ? 'lightsteelblue' : '#fff';
       });
 
@@ -304,6 +307,7 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
+        console.log(d);
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
