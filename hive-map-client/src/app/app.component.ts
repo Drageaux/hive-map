@@ -207,10 +207,10 @@ export class AppComponent implements OnInit {
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     console.log('new height', newHeight);
-    this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
+    this.d3tree = this.d3tree.size([window.innerHeight, window.innerWidth]);
 
     // Compute the new tree layout.
-    const treeRoot = this.d3tree(source);
+    const treeRoot = this.d3tree(this.root);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
@@ -221,14 +221,10 @@ export class AppComponent implements OnInit {
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = (d.depth * 500); //500px per level.
-      console.log(d.y);
     });
-    console.log('done');
     // Update the nodes…
     let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
       // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
-
-      console.log(d.y);
       return d.id || (d.id = this.i++);
     });
 
@@ -242,7 +238,6 @@ export class AppComponent implements OnInit {
         return 'translate(' + source.y + ',' + source.x + ')';
       })
       .on('click', (event, d) => {
-        console.log(d);
         return this.click(event, d);
       });
 
@@ -307,7 +302,6 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
-        console.log(d);
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
