@@ -317,7 +317,7 @@ export class AppComponent implements OnInit {
     // Enter any new links at the parent's previous position.
     let linkEnter = link
       .enter()
-      .append('path', 'g')
+      .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d: HierarchyPointLink<Message>) =>
         this.diagonal({
