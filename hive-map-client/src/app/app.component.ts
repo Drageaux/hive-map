@@ -185,6 +185,7 @@ export class AppComponent implements OnInit {
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
+    console.log(d.id);
     this.centerNode(d);
   }
 
@@ -381,8 +382,8 @@ export class AppComponent implements OnInit {
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      (d as any).x0 = source.x;
-      (d as any).y0 = source.y;
+      (d as any).x0 = d.x;
+      (d as any).y0 = d.y;
     });
   }
 }
