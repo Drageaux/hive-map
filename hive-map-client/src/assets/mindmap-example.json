@@ -1,0 +1,1040 @@
+{
+  "text": "flare",
+  "children": [
+    {
+      "text": "analytics",
+      "children": [
+        {
+          "text": "cluster",
+          "children": [
+            {
+              "text": "AgglomerativeCluster",
+              "size": 3938
+            },
+            {
+              "text": "CommunityStructure",
+              "size": 3812
+            },
+            {
+              "text": "HierarchicalCluster",
+              "size": 6714
+            },
+            {
+              "text": "MergeEdge",
+              "size": 743
+            }
+          ]
+        },
+        {
+          "text": "graph",
+          "children": [
+            {
+              "text": "BetweennessCentrality",
+              "size": 3534
+            },
+            {
+              "text": "LinkDistance",
+              "size": 5731
+            },
+            {
+              "text": "MaxFlowMinCut",
+              "size": 7840
+            },
+            {
+              "text": "ShortestPaths",
+              "size": 5914
+            },
+            {
+              "text": "SpanningTree",
+              "size": 3416
+            }
+          ]
+        },
+        {
+          "text": "optimization",
+          "children": [
+            {
+              "text": "AspectRatioBanker",
+              "size": 7074
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "animate",
+      "children": [
+        {
+          "text": "Easing",
+          "size": 17010
+        },
+        {
+          "text": "FunctionSequence",
+          "size": 5842
+        },
+        {
+          "text": "interpolate",
+          "children": [
+            {
+              "text": "ArrayInterpolator",
+              "size": 1983
+            },
+            {
+              "text": "ColorInterpolator",
+              "size": 2047
+            },
+            {
+              "text": "DateInterpolator",
+              "size": 1375
+            },
+            {
+              "text": "Interpolator",
+              "size": 8746
+            },
+            {
+              "text": "MatrixInterpolator",
+              "size": 2202
+            },
+            {
+              "text": "NumberInterpolator",
+              "size": 1382
+            },
+            {
+              "text": "ObjectInterpolator",
+              "size": 1629
+            },
+            {
+              "text": "PointInterpolator",
+              "size": 1675
+            },
+            {
+              "text": "RectangleInterpolator",
+              "size": 2042
+            }
+          ]
+        },
+        {
+          "text": "ISchedulable",
+          "size": 1041
+        },
+        {
+          "text": "Parallel",
+          "size": 5176
+        },
+        {
+          "text": "Pause",
+          "size": 449
+        },
+        {
+          "text": "Scheduler",
+          "size": 5593
+        },
+        {
+          "text": "Sequence",
+          "size": 5534
+        },
+        {
+          "text": "Transition",
+          "size": 9201
+        },
+        {
+          "text": "Transitioner",
+          "size": 19975
+        },
+        {
+          "text": "TransitionEvent",
+          "size": 1116
+        },
+        {
+          "text": "Tween",
+          "size": 6006
+        }
+      ]
+    },
+    {
+      "text": "data",
+      "children": [
+        {
+          "text": "converters",
+          "children": [
+            {
+              "text": "Converters",
+              "size": 721
+            },
+            {
+              "text": "DelimitedTextConverter",
+              "size": 4294
+            },
+            {
+              "text": "GraphMLConverter",
+              "size": 9800
+            },
+            {
+              "text": "IDataConverter",
+              "size": 1314
+            },
+            {
+              "text": "JSONConverter",
+              "size": 2220
+            }
+          ]
+        },
+        {
+          "text": "DataField",
+          "size": 1759
+        },
+        {
+          "text": "DataSchema",
+          "size": 2165
+        },
+        {
+          "text": "DataSet",
+          "size": 586
+        },
+        {
+          "text": "DataSource",
+          "size": 3331
+        },
+        {
+          "text": "DataTable",
+          "size": 772
+        },
+        {
+          "text": "DataUtil",
+          "size": 3322
+        }
+      ]
+    },
+    {
+      "text": "display",
+      "children": [
+        {
+          "text": "DirtySprite",
+          "size": 8833
+        },
+        {
+          "text": "LineSprite",
+          "size": 1732
+        },
+        {
+          "text": "RectSprite",
+          "size": 3623
+        },
+        {
+          "text": "TextSprite",
+          "size": 10066
+        }
+      ]
+    },
+    {
+      "text": "flex",
+      "children": [
+        {
+          "text": "FlareVis",
+          "size": 4116
+        }
+      ]
+    },
+    {
+      "text": "physics",
+      "children": [
+        {
+          "text": "DragForce",
+          "size": 1082
+        },
+        {
+          "text": "GravityForce",
+          "size": 1336
+        },
+        {
+          "text": "IForce",
+          "size": 319
+        },
+        {
+          "text": "NBodyForce",
+          "size": 10498
+        },
+        {
+          "text": "Particle",
+          "size": 2822
+        },
+        {
+          "text": "Simulation",
+          "size": 9983
+        },
+        {
+          "text": "Spring",
+          "size": 2213
+        },
+        {
+          "text": "SpringForce",
+          "size": 1681
+        }
+      ]
+    },
+    {
+      "text": "query",
+      "children": [
+        {
+          "text": "AggregateExpression",
+          "size": 1616
+        },
+        {
+          "text": "And",
+          "size": 1027
+        },
+        {
+          "text": "Arithmetic",
+          "size": 3891
+        },
+        {
+          "text": "Average",
+          "size": 891
+        },
+        {
+          "text": "BinaryExpression",
+          "size": 2893
+        },
+        {
+          "text": "Comparison",
+          "size": 5103
+        },
+        {
+          "text": "CompositeExpression",
+          "size": 3677
+        },
+        {
+          "text": "Count",
+          "size": 781
+        },
+        {
+          "text": "DateUtil",
+          "size": 4141
+        },
+        {
+          "text": "Distinct",
+          "size": 933
+        },
+        {
+          "text": "Expression",
+          "size": 5130
+        },
+        {
+          "text": "ExpressionIterator",
+          "size": 3617
+        },
+        {
+          "text": "Fn",
+          "size": 3240
+        },
+        {
+          "text": "If",
+          "size": 2732
+        },
+        {
+          "text": "IsA",
+          "size": 2039
+        },
+        {
+          "text": "Literal",
+          "size": 1214
+        },
+        {
+          "text": "Match",
+          "size": 3748
+        },
+        {
+          "text": "Maximum",
+          "size": 843
+        },
+        {
+          "text": "methods",
+          "children": [
+            {
+              "text": "add",
+              "size": 593
+            },
+            {
+              "text": "and",
+              "size": 330
+            },
+            {
+              "text": "average",
+              "size": 287
+            },
+            {
+              "text": "count",
+              "size": 277
+            },
+            {
+              "text": "distinct",
+              "size": 292
+            },
+            {
+              "text": "div",
+              "size": 595
+            },
+            {
+              "text": "eq",
+              "size": 594
+            },
+            {
+              "text": "fn",
+              "size": 460
+            },
+            {
+              "text": "gt",
+              "size": 603
+            },
+            {
+              "text": "gte",
+              "size": 625
+            },
+            {
+              "text": "iff",
+              "size": 748
+            },
+            {
+              "text": "isa",
+              "size": 461
+            },
+            {
+              "text": "lt",
+              "size": 597
+            },
+            {
+              "text": "lte",
+              "size": 619
+            },
+            {
+              "text": "max",
+              "size": 283
+            },
+            {
+              "text": "min",
+              "size": 283
+            },
+            {
+              "text": "mod",
+              "size": 591
+            },
+            {
+              "text": "mul",
+              "size": 603
+            },
+            {
+              "text": "neq",
+              "size": 599
+            },
+            {
+              "text": "not",
+              "size": 386
+            },
+            {
+              "text": "or",
+              "size": 323
+            },
+            {
+              "text": "orderby",
+              "size": 307
+            },
+            {
+              "text": "range",
+              "size": 772
+            },
+            {
+              "text": "select",
+              "size": 296
+            },
+            {
+              "text": "stddev",
+              "size": 363
+            },
+            {
+              "text": "sub",
+              "size": 600
+            },
+            {
+              "text": "sum",
+              "size": 280
+            },
+            {
+              "text": "update",
+              "size": 307
+            },
+            {
+              "text": "variance",
+              "size": 335
+            },
+            {
+              "text": "where",
+              "size": 299
+            },
+            {
+              "text": "xor",
+              "size": 354
+            },
+            {
+              "text": "_",
+              "size": 264
+            }
+          ]
+        },
+        {
+          "text": "Minimum",
+          "size": 843
+        },
+        {
+          "text": "Not",
+          "size": 1554
+        },
+        {
+          "text": "Or",
+          "size": 970
+        },
+        {
+          "text": "Query",
+          "size": 13896
+        },
+        {
+          "text": "Range",
+          "size": 1594
+        },
+        {
+          "text": "StringUtil",
+          "size": 4130
+        },
+        {
+          "text": "Sum",
+          "size": 791
+        },
+        {
+          "text": "Variable",
+          "size": 1124
+        },
+        {
+          "text": "Variance",
+          "size": 1876
+        },
+        {
+          "text": "Xor",
+          "size": 1101
+        }
+      ]
+    },
+    {
+      "text": "scale",
+      "children": [
+        {
+          "text": "IScaleMap",
+          "size": 2105
+        },
+        {
+          "text": "LinearScale",
+          "size": 1316
+        },
+        {
+          "text": "LogScale",
+          "size": 3151
+        },
+        {
+          "text": "OrdinalScale",
+          "size": 3770
+        },
+        {
+          "text": "QuantileScale",
+          "size": 2435
+        },
+        {
+          "text": "QuantitativeScale",
+          "size": 4839
+        },
+        {
+          "text": "RootScale",
+          "size": 1756
+        },
+        {
+          "text": "Scale",
+          "size": 4268
+        },
+        {
+          "text": "ScaleType",
+          "size": 1821
+        },
+        {
+          "text": "TimeScale",
+          "size": 5833
+        }
+      ]
+    },
+    {
+      "text": "util",
+      "children": [
+        {
+          "text": "Arrays",
+          "size": 8258
+        },
+        {
+          "text": "Colors",
+          "size": 10001
+        },
+        {
+          "text": "Dates",
+          "size": 8217
+        },
+        {
+          "text": "Displays",
+          "size": 12555
+        },
+        {
+          "text": "Filter",
+          "size": 2324
+        },
+        {
+          "text": "Geometry",
+          "size": 10993
+        },
+        {
+          "text": "heap",
+          "children": [
+            {
+              "text": "FibonacciHeap",
+              "size": 9354
+            },
+            {
+              "text": "HeapNode",
+              "size": 1233
+            }
+          ]
+        },
+        {
+          "text": "IEvaluable",
+          "size": 335
+        },
+        {
+          "text": "IPredicate",
+          "size": 383
+        },
+        {
+          "text": "IValueProxy",
+          "size": 874
+        },
+        {
+          "text": "math",
+          "children": [
+            {
+              "text": "DenseMatrix",
+              "size": 3165
+            },
+            {
+              "text": "IMatrix",
+              "size": 2815
+            },
+            {
+              "text": "SparseMatrix",
+              "size": 3366
+            }
+          ]
+        },
+        {
+          "text": "Maths",
+          "size": 17705
+        },
+        {
+          "text": "Orientation",
+          "size": 1486
+        },
+        {
+          "text": "palette",
+          "children": [
+            {
+              "text": "ColorPalette",
+              "size": 6367
+            },
+            {
+              "text": "Palette",
+              "size": 1229
+            },
+            {
+              "text": "ShapePalette",
+              "size": 2059
+            },
+            {
+              "text": "SizePalette",
+              "size": 2291
+            }
+          ]
+        },
+        {
+          "text": "Property",
+          "size": 5559
+        },
+        {
+          "text": "Shapes",
+          "size": 19118
+        },
+        {
+          "text": "Sort",
+          "size": 6887
+        },
+        {
+          "text": "Stats",
+          "size": 6557
+        },
+        {
+          "text": "Strings",
+          "size": 22026
+        }
+      ]
+    },
+    {
+      "text": "vis",
+      "children": [
+        {
+          "text": "axis",
+          "children": [
+            {
+              "text": "Axes",
+              "size": 1302
+            },
+            {
+              "text": "Axis",
+              "size": 24593
+            },
+            {
+              "text": "AxisGridLine",
+              "size": 652
+            },
+            {
+              "text": "AxisLabel",
+              "size": 636
+            },
+            {
+              "text": "CartesianAxes",
+              "size": 6703
+            }
+          ]
+        },
+        {
+          "text": "controls",
+          "children": [
+            {
+              "text": "AnchorControl",
+              "size": 2138
+            },
+            {
+              "text": "ClickControl",
+              "size": 3824
+            },
+            {
+              "text": "Control",
+              "size": 1353
+            },
+            {
+              "text": "ControlList",
+              "size": 4665
+            },
+            {
+              "text": "DragControl",
+              "size": 2649
+            },
+            {
+              "text": "ExpandControl",
+              "size": 2832
+            },
+            {
+              "text": "HoverControl",
+              "size": 4896
+            },
+            {
+              "text": "IControl",
+              "size": 763
+            },
+            {
+              "text": "PanZoomControl",
+              "size": 5222
+            },
+            {
+              "text": "SelectionControl",
+              "size": 7862
+            },
+            {
+              "text": "TooltipControl",
+              "size": 8435
+            }
+          ]
+        },
+        {
+          "text": "data",
+          "children": [
+            {
+              "text": "Data",
+              "size": 20544
+            },
+            {
+              "text": "DataList",
+              "size": 19788
+            },
+            {
+              "text": "DataSprite",
+              "size": 10349
+            },
+            {
+              "text": "EdgeSprite",
+              "size": 3301
+            },
+            {
+              "text": "NodeSprite",
+              "size": 19382
+            },
+            {
+              "text": "render",
+              "children": [
+                {
+                  "text": "ArrowType",
+                  "size": 698
+                },
+                {
+                  "text": "EdgeRenderer",
+                  "size": 5569
+                },
+                {
+                  "text": "IRenderer",
+                  "size": 353
+                },
+                {
+                  "text": "ShapeRenderer",
+                  "size": 2247
+                }
+              ]
+            },
+            {
+              "text": "ScaleBinding",
+              "size": 11275
+            },
+            {
+              "text": "Tree",
+              "size": 7147
+            },
+            {
+              "text": "TreeBuilder",
+              "size": 9930
+            }
+          ]
+        },
+        {
+          "text": "events",
+          "children": [
+            {
+              "text": "DataEvent",
+              "size": 2313
+            },
+            {
+              "text": "SelectionEvent",
+              "size": 1880
+            },
+            {
+              "text": "TooltipEvent",
+              "size": 1701
+            },
+            {
+              "text": "VisualizationEvent",
+              "size": 1117
+            }
+          ]
+        },
+        {
+          "text": "legend",
+          "children": [
+            {
+              "text": "Legend",
+              "size": 20859
+            },
+            {
+              "text": "LegendItem",
+              "size": 4614
+            },
+            {
+              "text": "LegendRange",
+              "size": 10530
+            }
+          ]
+        },
+        {
+          "text": "operator",
+          "children": [
+            {
+              "text": "distortion",
+              "children": [
+                {
+                  "text": "BifocalDistortion",
+                  "size": 4461
+                },
+                {
+                  "text": "Distortion",
+                  "size": 6314
+                },
+                {
+                  "text": "FisheyeDistortion",
+                  "size": 3444
+                }
+              ]
+            },
+            {
+              "text": "encoder",
+              "children": [
+                {
+                  "text": "ColorEncoder",
+                  "size": 3179
+                },
+                {
+                  "text": "Encoder",
+                  "size": 4060
+                },
+                {
+                  "text": "PropertyEncoder",
+                  "size": 4138
+                },
+                {
+                  "text": "ShapeEncoder",
+                  "size": 1690
+                },
+                {
+                  "text": "SizeEncoder",
+                  "size": 1830
+                }
+              ]
+            },
+            {
+              "text": "filter",
+              "children": [
+                {
+                  "text": "FisheyeTreeFilter",
+                  "size": 5219
+                },
+                {
+                  "text": "GraphDistanceFilter",
+                  "size": 3165
+                },
+                {
+                  "text": "VisibilityFilter",
+                  "size": 3509
+                }
+              ]
+            },
+            {
+              "text": "IOperator",
+              "size": 1286
+            },
+            {
+              "text": "label",
+              "children": [
+                {
+                  "text": "Labeler",
+                  "size": 9956
+                },
+                {
+                  "text": "RadialLabeler",
+                  "size": 3899
+                },
+                {
+                  "text": "StackedAreaLabeler",
+                  "size": 3202
+                }
+              ]
+            },
+            {
+              "text": "layout",
+              "children": [
+                {
+                  "text": "AxisLayout",
+                  "size": 6725
+                },
+                {
+                  "text": "BundledEdgeRouter",
+                  "size": 3727
+                },
+                {
+                  "text": "CircleLayout",
+                  "size": 9317
+                },
+                {
+                  "text": "CirclePackingLayout",
+                  "size": 12003
+                },
+                {
+                  "text": "DendrogramLayout",
+                  "size": 4853
+                },
+                {
+                  "text": "ForceDirectedLayout",
+                  "size": 8411
+                },
+                {
+                  "text": "IcicleTreeLayout",
+                  "size": 4864
+                },
+                {
+                  "text": "IndentedTreeLayout",
+                  "size": 3174
+                },
+                {
+                  "text": "Layout",
+                  "size": 7881
+                },
+                {
+                  "text": "NodeLinkTreeLayout",
+                  "size": 12870
+                },
+                {
+                  "text": "PieLayout",
+                  "size": 2728
+                },
+                {
+                  "text": "RadialTreeLayout",
+                  "size": 12348
+                },
+                {
+                  "text": "RandomLayout",
+                  "size": 870
+                },
+                {
+                  "text": "StackedAreaLayout",
+                  "size": 9121
+                },
+                {
+                  "text": "TreeMapLayout",
+                  "size": 9191
+                }
+              ]
+            },
+            {
+              "text": "Operator",
+              "size": 2490
+            },
+            {
+              "text": "OperatorList",
+              "size": 5248
+            },
+            {
+              "text": "OperatorSequence",
+              "size": 4190
+            },
+            {
+              "text": "OperatorSwitch",
+              "size": 2581
+            },
+            {
+              "text": "SortOperator",
+              "size": 2023
+            }
+          ]
+        },
+        {
+          "text": "Visualization",
+          "size": 16540
+        }
+      ]
+    }
+  ]
+}
