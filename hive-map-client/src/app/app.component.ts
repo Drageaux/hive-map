@@ -3,6 +3,7 @@ import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
 import { DefaultLinkObject, HierarchyPointLink } from 'd3';
+import { ConsoleReporter } from 'jasmine';
 
 @Component({
   selector: 'app-root',
@@ -90,9 +91,19 @@ export class AppComponent implements OnInit {
     this.zoomListener = d3
       .zoom()
       .scaleExtent([0.1, 3])
-      .on('zoom', () => {
+      .on('zoom', ({ transform }) => {
+        console.log(transform);
         this.svgGroup.attr('transform', d3);
       });
+    this.zoomListener = d3
+      .zoom()
+      .scaleExtent([0.1, 3])
+      .on('zoom', ({ transform }) => {
+        console.log(transform);
+        this.svgGroup.attr('transform', transform);
+      });
+
+    this.svg.call(this.zoomListener);
 
     (this.root as any).x0 = viewerHeight / 2;
     (this.root as any).y0 = 0;
@@ -110,23 +121,23 @@ export class AppComponent implements OnInit {
     // let speed = this.panSpeed;
     // if (this.panTimer) {
     //   clearTimeout(this.panTimer);
-    //   translateCoords = d3.transform(svgGroup.attr('transform'));
+    //   let translateCoords = d3.transform(this.svgGroup.attr('transform'));
     //   if (direction == 'left' || direction == 'right') {
-    //     translateX =
+    //     let translateX =
     //       direction == 'left'
     //         ? translateCoords.translate[0] + speed
     //         : translateCoords.translate[0] - speed;
-    //     translateY = translateCoords.translate[1];
+    //     let translateY = translateCoords.translate[1];
     //   } else if (direction == 'up' || direction == 'down') {
-    //     translateX = translateCoords.translate[0];
-    //     translateY =
+    //     let translateX = translateCoords.translate[0];
+    //     let translateY =
     //       direction == 'up'
     //         ? translateCoords.translate[1] + speed
     //         : translateCoords.translate[1] - speed;
     //   }
-    //   scaleX = translateCoords.scale[0];
-    //   scaleY = translateCoords.scale[1];
-    //   scale = zoomListener.scale();
+    //   let scaleX = translateCoords.scale[0];
+    //   let scaleY = translateCoords.scale[1];
+    //   let scale = d3.zoomTransform(this.svgGroup).k;
     //   svgGroup
     //     .transition()
     //     .attr(
@@ -138,7 +149,7 @@ export class AppComponent implements OnInit {
     //     .attr('transform', 'translate(' + translateX + ',' + translateY + ')');
     //   zoomListener.scale(zoomListener.scale());
     //   zoomListener.translate([translateX, translateY]);
-    //   this.panTimer = setTimeout( () => {
+    //   this.panTimer = setTimeout(() => {
     //     this.pan(domNode, direction);
     //   }, 50);
     // }
@@ -153,8 +164,8 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: d3.HierarchyPointNode<Message>) {
-    console.log(d3.zoomTransform(this.svgGroup).k);
-    let scale = d3.zoomTransform(this.svgGroup).k;
+    console.log(d3.zoomTransform(this.svg).k);
+    let scale = d3.zoomTransform(this.svg).k;
     let x = -source.y;
     let y = -source.x;
     x = x * scale + window.innerWidth / 2;
@@ -162,8 +173,13 @@ export class AppComponent implements OnInit {
     this.svgGroup
       .transition()
       .duration(this.duration)
-      .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')');
-    // .on("end", () => this.svgGroup.call(this.zoomListener.transform, d3.zoomIdentity.translate(x,y).scale(scale)));
+      .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
+      .on('end', () =>
+        this.svg.call(
+          this.zoomListener.transform,
+          d3.zoomIdentity.translate(x, y).scale(scale)
+        )
+      );
     // this.zoomListener.scale(scale);
     // this.zoomListener.translate([x, y]);
   }
