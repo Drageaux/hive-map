@@ -95,7 +95,6 @@ export class AppComponent implements OnInit {
       });
 
     this.update(this.root);
-
     this.centerNode(this.root);
   }
 
@@ -182,9 +181,8 @@ export class AppComponent implements OnInit {
   click(event, d) {
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
-    console.log(d);
     this.update(d);
-    // this.centerNode(d);
+    this.centerNode(d);
   }
 
   /*************************************************************************/
@@ -207,7 +205,6 @@ export class AppComponent implements OnInit {
     };
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
-    console.log('new height', newHeight);
     this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
@@ -215,7 +212,6 @@ export class AppComponent implements OnInit {
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
-    console.log(nodes);
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
       d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
