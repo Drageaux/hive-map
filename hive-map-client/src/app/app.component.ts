@@ -239,16 +239,16 @@ export class AppComponent implements OnInit {
       });
 
     nodeEnter
+      .merge(node)
       .append('circle')
       .attr('class', 'nodeCircle')
-      .attr('r', 4.5)
+      .attr('r', 0)
       .style('fill', (d) => {
-        return d.children || d._children ? 'lightsteelblue' : '#fff';
-      })
-      // Change the circle fill depending on whether it has children and is collapsed
-      .merge(node);
+        return d._children ? 'lightsteelblue' : '#fff';
+      });
 
     nodeEnter
+      .merge(node)
       .append('text')
       .attr('x', function (d) {
         return d.children || d._children ? -10 : 10;
@@ -261,11 +261,11 @@ export class AppComponent implements OnInit {
       .text((d) => {
         return d.data.text;
       })
-      .style('fill-opacity', 0)
-      .merge(node);
+      .style('fill-opacity', 0);
 
     // phantom node to give us mouseover in a radius around it
     nodeEnter
+      .merge(node)
       .append('circle')
       .attr('class', 'ghostCircle')
       .attr('r', 30)
@@ -279,6 +279,29 @@ export class AppComponent implements OnInit {
         // outCircle(node);
       });
 
+    // Update the text to reflect whether node has children or not.
+    nodeEnter
+      .merge(node)
+      .select('text')
+      .attr('x', function (d) {
+        return d.children || d._children ? -10 : 10;
+      })
+      .attr('text-anchor', function (d) {
+        return d.children || d._children ? 'end' : 'start';
+      })
+      .text(function (d) {
+        return d.data.text;
+      });
+
+    // Change the circle fill depending on whether it has children and is collapsed
+    nodeEnter
+      .merge(node)
+      .select('circle.nodeCircle')
+      .attr('r', 4.5)
+      .style('fill', function (d) {
+        return d._children ? 'lightsteelblue' : '#fff';
+      });
+
     // Transition nodes to their new position.
     let nodeUpdate = node
       .merge(nodeEnter)
@@ -289,7 +312,7 @@ export class AppComponent implements OnInit {
       });
 
     // Fade the text in
-    nodeUpdate.selectAll('text').style('fill-opacity', 1);
+    nodeUpdate.select('text').style('fill-opacity', 1);
 
     // Transition exiting nodes to the parent's new position.
     let nodeExit = node
