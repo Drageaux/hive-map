@@ -94,6 +94,9 @@ export class AppComponent implements OnInit {
         this.svgGroup.attr('transform', d3);
       });
 
+    (this.root as any).x0 = viewerHeight / 2;
+    (this.root as any).y0 = 0;
+
     this.update(this.root);
     this.centerNode(this.root);
   }
@@ -203,7 +206,7 @@ export class AppComponent implements OnInit {
         });
       }
     };
-    childCount(0, source);
+    childCount(0, this.root);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
@@ -320,7 +323,9 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
-        return 'translate(' + source.y + ',' + source.x + ')';
+        return (
+          'translate(' + (source as any).y0 + ',' + (source as any).x + ')'
+        );
       })
       .remove();
 
@@ -338,12 +343,16 @@ export class AppComponent implements OnInit {
       .enter()
       .insert('path', 'g')
       .attr('class', 'link')
-      .attr('d', (d: HierarchyPointLink<Message>) =>
-        this.diagonal({
-          source: [source.x, source.y],
-          target: [source.x, source.y],
-        })
-      );
+      .attr('d', (d: HierarchyPointLink<Message>) => {
+        var o = {
+          x: (source as any).x0,
+          y: (source as any).y0,
+        };
+        return this.diagonal({
+          source: [o.x, o.y],
+          target: [o.x, o.y],
+        });
+      });
 
     // Transition links to their new position.
     link
@@ -372,8 +381,8 @@ export class AppComponent implements OnInit {
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      // d.x = source.x;
-      // d.y = source.y;
+      (d as any).x0 = source.x;
+      (d as any).y0 = source.y;
     });
   }
 }
