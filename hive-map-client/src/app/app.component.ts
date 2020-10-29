@@ -160,10 +160,31 @@ export class AppComponent implements OnInit {
     this.svgGroup
       .transition()
       .duration(this.duration)
-      .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
-      // .on("end", () => this.svgGroup.call(this.zoomListener.transform, d3.zoomIdentity.translate(x,y).scale(scale)));
+      .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')');
+    // .on("end", () => this.svgGroup.call(this.zoomListener.transform, d3.zoomIdentity.translate(x,y).scale(scale)));
     // this.zoomListener.scale(scale);
     // this.zoomListener.translate([x, y]);
+  }
+
+  toggleChildren(d) {
+    if (d.children) {
+      d._children = d.children;
+      d.children = null;
+    } else if (d._children) {
+      d.children = d._children;
+      d._children = null;
+    }
+    return d;
+  }
+
+  // Toggle children on click.
+  click(d) {
+    if (d.defaultPrevented) return; // click suppressed
+    // d = this.toggleChildren(d);
+    let node = d3.select(d.eventTarget);
+    console.log(node);
+    this.update(d);
+    this.centerNode(d);
   }
 
   /*************************************************************************/
@@ -189,7 +210,7 @@ export class AppComponent implements OnInit {
     this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
-    const treeRoot = this.d3tree(this.root);
+    const treeRoot = this.d3tree(source);
     const nodes = treeRoot.descendants();
     const links = treeRoot.links();
 
@@ -215,8 +236,11 @@ export class AppComponent implements OnInit {
       .attr('class', 'node')
       .attr('transform', (d) => {
         return 'translate(' + source.y + ',' + source.x + ')';
+      })
+      .on('click', (event, d) => {
+        console.log(d);
+        return this.click(d);
       });
-    // .on('click', click);
 
     nodeEnter
       .append('circle')
@@ -229,6 +253,7 @@ export class AppComponent implements OnInit {
       .merge(node)
       .attr('r', 4.5)
       .style('fill', (d) => {
+        console.log(d);
         return d.children || d._children ? 'lightsteelblue' : '#fff';
       });
 
