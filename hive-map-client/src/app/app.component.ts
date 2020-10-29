@@ -208,7 +208,7 @@ export class AppComponent implements OnInit {
     childCount(0, source);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     console.log('new height', newHeight);
-    this.d3tree = this.d3tree.size([window.innerHeight, window.innerWidth]);
+    this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
 
     // Compute the new tree layout.
     const treeRoot = this.d3tree(this.root);
