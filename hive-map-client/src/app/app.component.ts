@@ -167,6 +167,7 @@ export class AppComponent implements OnInit {
   }
 
   toggleChildren(d) {
+    console.log(d);
     if (d.children) {
       d._children = d.children;
       d.children = null;
@@ -180,7 +181,7 @@ export class AppComponent implements OnInit {
   // Toggle children on click.
   click(event, d) {
     if (event.defaultPrevented) return; // click suppressed
-    // d = this.toggleChildren(d);
+    d = this.toggleChildren(d);
     console.log(d);
     this.update(d);
     // this.centerNode(d);
@@ -244,16 +245,12 @@ export class AppComponent implements OnInit {
     nodeEnter
       .append('circle')
       .attr('class', 'nodeCircle')
-      .attr('r', 0)
-      .style('fill', (d) => {
-        return d._children ? 'lightsteelblue' : '#fff';
-      })
-      // Change the circle fill depending on whether it has children and is collapsed
-      .merge(node)
       .attr('r', 4.5)
       .style('fill', (d) => {
         return d.children || d._children ? 'lightsteelblue' : '#fff';
-      });
+      })
+      // Change the circle fill depending on whether it has children and is collapsed
+      .merge(node);
 
     nodeEnter
       .append('text')
@@ -269,17 +266,7 @@ export class AppComponent implements OnInit {
         return d.data.text;
       })
       .style('fill-opacity', 0)
-      // Update the text to reflect whether node has children or not.
-      .merge(node)
-      .attr('x', function (d) {
-        return d.children || d._children ? -10 : 10;
-      })
-      .attr('text-anchor', function (d) {
-        return d.children || d._children ? 'end' : 'start';
-      })
-      .text((d) => {
-        return d.data.text;
-      });
+      .merge(node);
 
     // phantom node to give us mouseover in a radius around it
     nodeEnter
@@ -306,11 +293,10 @@ export class AppComponent implements OnInit {
       });
 
     // Fade the text in
-    nodeUpdate.select('text').style('fill-opacity', 1);
+    nodeUpdate.selectAll('text').style('fill-opacity', 1);
 
     // Transition exiting nodes to the parent's new position.
-    let nodeExit = this.svgGroup
-      .selectAll('g.node')
+    let nodeExit = node
       .exit()
       .transition()
       .duration(this.duration)
