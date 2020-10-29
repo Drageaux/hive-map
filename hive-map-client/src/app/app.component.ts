@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
-import { DefaultLinkObject, HierarchyPointLink } from 'd3';
-import { ConsoleReporter } from 'jasmine';
+import { HierarchyPointLink } from 'd3';
 
 @Component({
   selector: 'app-root',
