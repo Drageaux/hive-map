@@ -3,7 +3,6 @@ import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
 import { HierarchyPointLink } from 'd3';
-import { ConsoleReporter } from 'jasmine';
 
 @Component({
   selector: 'app-root',
@@ -193,7 +192,7 @@ export class AppComponent implements OnInit {
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
-    console.log('clicked', d.id);
+    console.log('clicked', d.data.id);
     this.centerNode(d);
   }
 
@@ -241,37 +240,82 @@ export class AppComponent implements OnInit {
       })
       .join(
         (enter) =>
+          // node enter
           enter
             .append('g')
             .attr('class', 'node')
             .attr('transform', (d) => {
-              return 'translate(' + source.y + ',' + source.x + ')';
+              return (
+                'translate(' +
+                ((source as any).y0 || source.y) +
+                ',' +
+                ((source as any).x0 || source.x) +
+                ')'
+              );
             })
             .on('click', (event, d) => {
               return this.click(event, d);
-            }),
+            })
+            .call((g) =>
+              // Transition nodes to their new position.
+              g
+                .transition()
+                .duration(this.duration)
+                .attr('transform', (d) => {
+                  return 'translate(' + d.y + ',' + d.x + ')';
+                })
+            )
+            .call((g) =>
+              // circle enter
+              g
+                .append('circle')
+                .attr('class', 'nodeCircle')
+                .attr('r', 4.5)
+                .style('fill', (d) => {
+                  return d._children ? 'lightsteelblue' : '#fff';
+                })
+            ),
         (update) =>
-          update.attr('transform', (d) => {
-            return 'translate(' + d.y + ',' + d.x + ')';
-          })
+          // node update
+          update
+            .call((g) =>
+              g
+                .transition()
+                .duration(this.duration)
+                .attr('transform', (d) => {
+                  console.log(d.data, d.y, d.x);
+                  return 'translate(' + d.y + ',' + d.x + ')';
+                })
+            )
+            .call((g) =>
+              // Change the circle fill depending on whether it has children and is collapsed
+              g
+                .select('circle.nodeCircle')
+                .attr('r', 4.5)
+                .style('fill', function (d) {
+                  return d._children ? 'lightsteelblue' : '#fff';
+                })
+            ),
+        (exit) =>
+          exit
+            .call((g) =>
+              g
+                .transition()
+                .duration(this.duration)
+                .attr('transform', function (d) {
+                  return 'translate(' + source.y + ',' + source.x + ')';
+                })
+                .remove()
+            )
+            .call((g) => g.select('circle').attr('r', 0))
       );
 
-    let circle = node.append('circle').join(
-      (enter) =>
-        enter
-          .attr('class', 'nodeCircle')
-          .attr('r', 0)
-          .style('fill', (d) => {
-            console.log(d);
-            return d._children ? 'lightsteelblue' : '#fff';
-          }),
-      (update) =>
-        update.attr('r', 4.5).style('fill', function (d) {
-          return d._children ? 'lightsteelblue' : '#fff';
-        }),
-      (exit) => exit.select('circle').attr('r', 0)
-    );
-    console.log(circle);
+    // let circle = node.append('circle').join(
+    //   (enter) => enter,
+    //   (update) => update.transition().duration(this.duration).attr('r', 4.5),
+    //   (exit) => exit.select('circle').attr('r', 0)
+    // );
+    // console.log(circle);
 
     // let text = node
     //   .append('text')
