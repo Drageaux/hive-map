@@ -3,6 +3,7 @@ import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
 import { HierarchyPointLink } from 'd3';
+import { ConsoleReporter } from 'jasmine';
 
 @Component({
   selector: 'app-root',
@@ -91,14 +92,6 @@ export class AppComponent implements OnInit {
       .zoom()
       .scaleExtent([0.1, 3])
       .on('zoom', ({ transform }) => {
-        console.log(transform);
-        this.svgGroup.attr('transform', d3);
-      });
-    this.zoomListener = d3
-      .zoom()
-      .scaleExtent([0.1, 3])
-      .on('zoom', ({ transform }) => {
-        console.log(transform);
         this.svgGroup.attr('transform', transform);
       });
 
@@ -163,7 +156,7 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: d3.HierarchyPointNode<Message>) {
-    console.log(d3.zoomTransform(this.svg).k);
+    console.log('zoom level:', d3.zoomTransform(this.svg).k);
     let scale = d3.zoomTransform(this.svg).k;
     let x = -source.y;
     let y = -source.x;
@@ -200,7 +193,7 @@ export class AppComponent implements OnInit {
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
-    console.log(d.id);
+    console.log('clicked', d.id);
     this.centerNode(d);
   }
 
@@ -237,163 +230,214 @@ export class AppComponent implements OnInit {
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = (d.depth * 500); //500px per level.
+      return d.data.id || (d.data.id = this.i++);
     });
     // Update the nodes…
-    let node = this.svgGroup.selectAll('g.node').data(nodes, (d) => {
-      // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
-      return d.id || (d.id = this.i++);
-    });
-
-    // Enter any new nodes at the parent's previous position.
-    let nodeEnter = node
-      .enter()
-      .append('g')
-      // .call(dragListener)
-      .attr('class', 'node')
-      .attr('transform', (d) => {
-        return 'translate(' + source.y + ',' + source.x + ')';
+    let node = this.svgGroup
+      .selectAll('g.node')
+      .data(nodes, (d) => {
+        // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+        return d.data.id || (d.data.id = this.i++);
       })
-      .on('click', (event, d) => {
-        return this.click(event, d);
-      });
-
-    nodeEnter
-      .merge(node)
-      .append('circle')
-      .attr('class', 'nodeCircle')
-      .attr('r', 0)
-      .style('fill', (d) => {
-        return d._children ? 'lightsteelblue' : '#fff';
-      });
-
-    nodeEnter
-      .merge(node)
-      .append('text')
-      .attr('x', function (d) {
-        return d.children || d._children ? -10 : 10;
-      })
-      .attr('dy', '.35em')
-      .attr('class', 'nodeText')
-      .attr('text-anchor', function (d) {
-        return d.children || d._children ? 'end' : 'start';
-      })
-      .text((d) => {
-        return d.data.text;
-      })
-      .style('fill-opacity', 0);
-
-    // phantom node to give us mouseover in a radius around it
-    nodeEnter
-      .merge(node)
-      .append('circle')
-      .attr('class', 'ghostCircle')
-      .attr('r', 30)
-      .attr('opacity', 0.2) // change this to zero to hide the target area
-      .style('fill', 'red')
-      .attr('pointer-events', 'mouseover')
-      .on('mouseover', function (node) {
-        // overCircle(node);
-      })
-      .on('mouseout', function (node) {
-        // outCircle(node);
-      });
-
-    // Update the text to reflect whether node has children or not.
-    nodeEnter
-      .merge(node)
-      .select('text')
-      .attr('x', function (d) {
-        return d.children || d._children ? -10 : 10;
-      })
-      .attr('text-anchor', function (d) {
-        return d.children || d._children ? 'end' : 'start';
-      })
-      .text(function (d) {
-        return d.data.text;
-      });
-
-    // Change the circle fill depending on whether it has children and is collapsed
-    nodeEnter
-      .merge(node)
-      .select('circle.nodeCircle')
-      .attr('r', 4.5)
-      .style('fill', function (d) {
-        return d._children ? 'lightsteelblue' : '#fff';
-      });
-
-    // Transition nodes to their new position.
-    let nodeUpdate = node
-      .merge(nodeEnter)
-      .transition()
-      .duration(this.duration)
-      .attr('transform', (d) => {
-        return 'translate(' + d.y + ',' + d.x + ')';
-      });
-
-    // Fade the text in
-    nodeUpdate.select('text').style('fill-opacity', 1);
-
-    // Transition exiting nodes to the parent's new position.
-    let nodeExit = node
-      .exit()
-      .transition()
-      .duration(this.duration)
-      .attr('transform', (d) => {
-        return (
-          'translate(' + (source as any).y0 + ',' + (source as any).x + ')'
-        );
-      })
-      .remove();
-
-    nodeExit.select('circle').attr('r', 0);
-
-    nodeExit.select('text').style('fill-opacity', 0);
-
-    // Update the links…
-    let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
-      return d.target.id;
-    });
-
-    // Enter any new links at the parent's previous position.
-    let linkEnter = link
-      .enter()
-      .insert('path', 'g')
-      .attr('class', 'link')
-      .attr('d', (d: HierarchyPointLink<Message>) => {
-        var o = {
-          x: (source as any).x0,
-          y: (source as any).y0,
-        };
-        return this.diagonal({
-          source: [o.x, o.y],
-          target: [o.x, o.y],
-        });
-      });
-
-    // Transition links to their new position.
-    link
-      .merge(linkEnter)
-      .transition()
-      .duration(this.duration)
-      .attr('d', (d: HierarchyPointLink<Message>) =>
-        this.diagonal({
-          source: [d.source.x, d.source.y],
-          target: [d.target.x, d.target.y],
-        })
+      .join(
+        (enter) =>
+          enter
+            .append('g')
+            .attr('class', 'node')
+            .attr('transform', (d) => {
+              return 'translate(' + source.y + ',' + source.x + ')';
+            })
+            .on('click', (event, d) => {
+              return this.click(event, d);
+            }),
+        (update) =>
+          update.attr('transform', (d) => {
+            return 'translate(' + d.y + ',' + d.x + ')';
+          })
       );
 
-    // Transition exiting nodes to the parent's new position.
-    link
-      .exit()
-      .transition()
-      .duration(this.duration)
-      .attr('d', (d: HierarchyPointLink<Message>) =>
-        this.diagonal({
-          source: [source.x, source.y],
-          target: [source.x, source.y],
-        })
-      )
-      .remove();
+    let circle = node.append('circle').join(
+      (enter) =>
+        enter
+          .attr('class', 'nodeCircle')
+          .attr('r', 0)
+          .style('fill', (d) => {
+            console.log(d);
+            return d._children ? 'lightsteelblue' : '#fff';
+          }),
+      (update) =>
+        update.attr('r', 4.5).style('fill', function (d) {
+          return d._children ? 'lightsteelblue' : '#fff';
+        }),
+      (exit) => exit.select('circle').attr('r', 0)
+    );
+    console.log(circle);
+
+    // let text = node
+    //   .append('text')
+    //   .attr('x', function (d) {
+    //     return d.children || d._children ? -10 : 10;
+    //   })
+    //   .attr('dy', '.35em')
+    //   .attr('class', 'nodeText')
+    //   .attr('text-anchor', function (d) {
+    //     return d.children || d._children ? 'end' : 'start';
+    //   })
+    //   .text((d) => {
+    //     return d.data.text;
+    //   })
+    //   .style('fill-opacity', 1);
+
+    // Enter any new nodes at the parent's previous position.
+    // let nodeEnter = node
+    //   .enter()
+    //   .append('g')
+    //   // .call(dragListener)
+    //   .attr('class', 'node')
+    //   .attr('transform', (d) => {
+    //     return 'translate(' + source.y + ',' + source.x + ')';
+    //   })
+    //   .on('click', (event, d) => {
+    //     return this.click(event, d);
+    //   });
+
+    // nodeEnter
+    //   .append('circle')
+    //   .merge(node)
+    //   .attr('class', 'nodeCircle')
+    //   .attr('r', 0)
+    //   .style('fill', (d) => {
+    //     return d._children ? 'lightsteelblue' : '#fff';
+    //   });
+
+    // nodeEnter
+    //   .append('text')
+    //   .merge(node)
+    //   .attr('x', function (d) {
+    //     return d.children || d._children ? -10 : 10;
+    //   })
+    //   .attr('dy', '.35em')
+    //   .attr('class', 'nodeText')
+    //   .attr('text-anchor', function (d) {
+    //     return d.children || d._children ? 'end' : 'start';
+    //   })
+    //   .text((d) => {
+    //     return d.data.text;
+    //   })
+    //   .style('fill-opacity', 0);
+
+    // // phantom node to give us mouseover in a radius around it
+    // nodeEnter
+    //   .append('circle')
+    //   .merge(node)
+    //   .attr('class', 'ghostCircle')
+    //   .attr('r', 30)
+    //   .attr('opacity', 0.2) // change this to zero to hide the target area
+    //   .style('fill', 'red')
+    //   .attr('pointer-events', 'mouseover')
+    //   .on('mouseover', function (node) {
+    //     // overCircle(node);
+    //   })
+    //   .on('mouseout', function (node) {
+    //     // outCircle(node);
+    //   });
+
+    // // Update the text to reflect whether node has children or not.
+    // nodeEnter
+    //   .select('text')
+    //   .merge(node)
+    //   .attr('x', function (d) {
+    //     return d.children || d._children ? -10 : 10;
+    //   })
+    //   .attr('text-anchor', function (d) {
+    //     return d.children || d._children ? 'end' : 'start';
+    //   })
+    //   .text(function (d) {
+    //     return d.data.text;
+    //   });
+
+    // // Change the circle fill depending on whether it has children and is collapsed
+    // nodeEnter
+    //   .merge(node)
+    //   .select('circle.nodeCircle')
+    //   .attr('r', 4.5)
+    //   .style('fill', function (d) {
+    //     return d._children ? 'lightsteelblue' : '#fff';
+    //   });
+
+    // // Transition nodes to their new position.
+    // let nodeUpdate = node
+    //   .merge(nodeEnter)
+    //   .transition()
+    //   .duration(this.duration)
+    //   .attr('transform', (d) => {
+    //     return 'translate(' + d.y + ',' + d.x + ')';
+    //   });
+
+    // // Fade the text in
+    // nodeUpdate.select('text').style('fill-opacity', 1);
+
+    // // Transition exiting nodes to the parent's new position.
+    // let nodeExit = node
+    //   .exit()
+    //   .transition()
+    //   .duration(this.duration)
+    //   .attr('transform', (d) => {
+    //     return (
+    //       'translate(' + (source as any).y0 + ',' + (source as any).x + ')'
+    //     );
+    //   })
+    //   .remove();
+
+    // nodeExit.select('circle').attr('r', 0);
+
+    // nodeExit.select('text').style('fill-opacity', 0);
+
+    // // Update the links…
+    // let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
+    //   return d.target.id;
+    // });
+
+    // // Enter any new links at the parent's previous position.
+    // let linkEnter = link
+    //   .enter()
+    //   .insert('path', 'g')
+    //   .attr('class', 'link')
+    //   .attr('d', (d: HierarchyPointLink<Message>) => {
+    //     var o = {
+    //       x: (source as any).x0,
+    //       y: (source as any).y0,
+    //     };
+    //     return this.diagonal({
+    //       source: [o.x, o.y],
+    //       target: [o.x, o.y],
+    //     });
+    //   });
+
+    // // Transition links to their new position.
+    // link
+    //   .merge(linkEnter)
+    //   .transition()
+    //   .duration(this.duration)
+    //   .attr('d', (d: HierarchyPointLink<Message>) =>
+    //     this.diagonal({
+    //       source: [d.source.x, d.source.y],
+    //       target: [d.target.x, d.target.y],
+    //     })
+    //   );
+
+    // // Transition exiting nodes to the parent's new position.
+    // link
+    //   .exit()
+    //   .transition()
+    //   .duration(this.duration)
+    //   .attr('d', (d: HierarchyPointLink<Message>) =>
+    //     this.diagonal({
+    //       source: [source.x, source.y],
+    //       target: [source.x, source.y],
+    //     })
+    //   )
+    //   .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
