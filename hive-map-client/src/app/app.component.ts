@@ -256,8 +256,8 @@ export class AppComponent implements OnInit {
             .on('click', (event, d) => {
               return this.click(event, d);
             })
+            // Transition nodes to their new position.
             .call((g) =>
-              // Transition nodes to their new position.
               g
                 .transition()
                 .duration(this.duration)
@@ -265,40 +265,49 @@ export class AppComponent implements OnInit {
                   return 'translate(' + d.y + ',' + d.x + ')';
                 })
             )
+            // circle enter
             .call((g) =>
-              // circle enter
               g
                 .append('circle')
                 .attr('class', 'nodeCircle')
-                .attr('r', 4.5)
+                .attr('r', 0)
                 .style('fill', (d) => {
                   return d._children ? 'lightsteelblue' : '#fff';
                 })
-            ),
-        (update) =>
-          // node update
-          update
-            .call((g) =>
-              g
-                .transition()
-                .duration(this.duration)
-                .attr('transform', (d) => {
-                  console.log(d.data, d.y, d.x);
-                  return 'translate(' + d.y + ',' + d.x + ')';
-                })
             )
+            // text enter
             .call((g) =>
-              // Change the circle fill depending on whether it has children and is collapsed
               g
-                .select('circle.nodeCircle')
-                .attr('r', 4.5)
-                .style('fill', function (d) {
-                  return d._children ? 'lightsteelblue' : '#fff';
+                .append('text')
+                .attr('x', (d) => {
+                  return d.children || d._children ? -10 : 10;
                 })
+                .attr('dy', '.35em')
+                .attr('class', 'nodeText')
+                .attr('text-anchor', (d) => {
+                  return d.children || d._children ? 'end' : 'start';
+                })
+                .text((d) => {
+                  return d.data.text;
+                })
+                .style('fill-opacity', 0)
             ),
+        // node update
+        (update) =>
+          // Transition nodes to their new position.
+          update.call((g) =>
+            g
+              .transition()
+              .duration(this.duration)
+              .attr('transform', (d) => {
+                console.log(d.data, d.y, d.x);
+                return 'translate(' + d.y + ',' + d.x + ')';
+              })
+          ),
         (exit) =>
           exit
             .call((g) =>
+              // Transition exiting nodes to the parent's new position.
               g
                 .transition()
                 .duration(this.duration)
@@ -308,67 +317,45 @@ export class AppComponent implements OnInit {
                 .remove()
             )
             .call((g) => g.select('circle').attr('r', 0))
+            .call((g) =>
+              g
+                .select('text')
+                .transition()
+                .duration(this.duration)
+                .style('fill-opacity', 0)
+            )
       );
 
-    // let circle = node.append('circle').join(
-    //   (enter) => enter,
-    //   (update) => update.transition().duration(this.duration).attr('r', 4.5),
-    //   (exit) => exit.select('circle').attr('r', 0)
-    // );
-    // console.log(circle);
+    // Change the circle fill depending on whether it has children and is collapsed
+    node
+      .join()
+      .select('circle.nodeCircle')
+      .style('r', (d) => 4.5)
+      .style('fill', (d) => {
+        return d._children ? 'lightsteelblue' : '#fff';
+      });
 
-    // let text = node
-    //   .append('text')
-    //   .attr('x', function (d) {
-    //     return d.children || d._children ? -10 : 10;
-    //   })
-    //   .attr('dy', '.35em')
-    //   .attr('class', 'nodeText')
-    //   .attr('text-anchor', function (d) {
-    //     return d.children || d._children ? 'end' : 'start';
-    //   })
-    //   .text((d) => {
-    //     return d.data.text;
-    //   })
-    //   .style('fill-opacity', 1);
+    // Update the text to reflect whether node has children or not.
+    node
+      .join()
+      .select('text')
+      .attr('x', (d) => {
+        return d.children || d._children ? -10 : 10;
+      })
+      .attr('text-anchor', (d) => {
+        return d.children || d._children ? 'end' : 'start';
+      })
+      .text((d) => {
+        return d.data.text;
+      });
 
-    // Enter any new nodes at the parent's previous position.
-    // let nodeEnter = node
-    //   .enter()
-    //   .append('g')
-    //   // .call(dragListener)
-    //   .attr('class', 'node')
-    //   .attr('transform', (d) => {
-    //     return 'translate(' + source.y + ',' + source.x + ')';
-    //   })
-    //   .on('click', (event, d) => {
-    //     return this.click(event, d);
-    //   });
-
-    // nodeEnter
-    //   .append('circle')
-    //   .merge(node)
-    //   .attr('class', 'nodeCircle')
-    //   .attr('r', 0)
-    //   .style('fill', (d) => {
-    //     return d._children ? 'lightsteelblue' : '#fff';
-    //   });
-
-    // nodeEnter
-    //   .append('text')
-    //   .merge(node)
-    //   .attr('x', function (d) {
-    //     return d.children || d._children ? -10 : 10;
-    //   })
-    //   .attr('dy', '.35em')
-    //   .attr('class', 'nodeText')
-    //   .attr('text-anchor', function (d) {
-    //     return d.children || d._children ? 'end' : 'start';
-    //   })
-    //   .text((d) => {
-    //     return d.data.text;
-    //   })
-    //   .style('fill-opacity', 0);
+    // Fade the text in
+    node
+      .join()
+      .select('text')
+      .transition()
+      .duration(this.duration)
+      .style('fill-opacity', 1);
 
     // // phantom node to give us mouseover in a radius around it
     // nodeEnter
@@ -385,57 +372,6 @@ export class AppComponent implements OnInit {
     //   .on('mouseout', function (node) {
     //     // outCircle(node);
     //   });
-
-    // // Update the text to reflect whether node has children or not.
-    // nodeEnter
-    //   .select('text')
-    //   .merge(node)
-    //   .attr('x', function (d) {
-    //     return d.children || d._children ? -10 : 10;
-    //   })
-    //   .attr('text-anchor', function (d) {
-    //     return d.children || d._children ? 'end' : 'start';
-    //   })
-    //   .text(function (d) {
-    //     return d.data.text;
-    //   });
-
-    // // Change the circle fill depending on whether it has children and is collapsed
-    // nodeEnter
-    //   .merge(node)
-    //   .select('circle.nodeCircle')
-    //   .attr('r', 4.5)
-    //   .style('fill', function (d) {
-    //     return d._children ? 'lightsteelblue' : '#fff';
-    //   });
-
-    // // Transition nodes to their new position.
-    // let nodeUpdate = node
-    //   .merge(nodeEnter)
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('transform', (d) => {
-    //     return 'translate(' + d.y + ',' + d.x + ')';
-    //   });
-
-    // // Fade the text in
-    // nodeUpdate.select('text').style('fill-opacity', 1);
-
-    // // Transition exiting nodes to the parent's new position.
-    // let nodeExit = node
-    //   .exit()
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('transform', (d) => {
-    //     return (
-    //       'translate(' + (source as any).y0 + ',' + (source as any).x + ')'
-    //     );
-    //   })
-    //   .remove();
-
-    // nodeExit.select('circle').attr('r', 0);
-
-    // nodeExit.select('text').style('fill-opacity', 0);
 
     // // Update the links…
     // let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
