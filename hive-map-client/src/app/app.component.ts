@@ -175,6 +175,24 @@ export class AppComponent implements OnInit {
     // this.zoomListener.translate([x, y]);
   }
 
+  // Helper functions for collapsing and expanding nodes.
+
+  collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(this.collapse);
+      d.children = null;
+    }
+  }
+
+  expand(d) {
+    if (d._children) {
+      d.children = d._children;
+      d.children.forEach(this.expand);
+      d._children = null;
+    }
+  }
+
   toggleChildren(d) {
     console.log(d);
     if (d.children) {
