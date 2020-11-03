@@ -216,7 +216,10 @@ export class AppComponent implements OnInit {
     };
     childCount(0, this.root);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
-    this.d3tree = this.d3tree.size([newHeight, window.innerWidth]);
+    this.d3tree = this.d3tree
+      .size([newHeight, window.innerWidth])
+      .nodeSize([50, 200])
+      .separation((a, b) => (a.parent == b.parent ? 1 : 1.25));
 
     // Compute the new tree layout.
     const treeRoot = this.d3tree(this.root);
@@ -266,11 +269,11 @@ export class AppComponent implements OnInit {
             .call((g) =>
               g
                 .append('rect')
-                .attr('y', -25)
+                .attr('y', -20)
                 .attr('x', -100)
                 .attr('width', 200)
-                .attr('height', 50)
-                .style('fill-opacity', 0.5)
+                .attr('height', 40)
+                .style('fill-opacity', 1)
                 .style('fill', '#5396ff')
                 .style('rx', 15)
             )
@@ -304,15 +307,17 @@ export class AppComponent implements OnInit {
         // node update
         (update) =>
           // Transition nodes to their new position.
-          update.call((g) =>
-            g
-              .transition()
-              .duration(this.duration)
-              .attr('transform', (d) => {
-                console.log(d.data, d.y, d.x);
-                return 'translate(' + d.y + ',' + d.x + ')';
-              })
-          ),
+          update
+            .call((g) =>
+              g
+                .transition()
+                .duration(this.duration)
+                .attr('transform', (d) => {
+                  console.log(d.data, d.y, d.x);
+                  return 'translate(' + d.y + ',' + d.x + ')';
+                })
+            )
+            .call((g) => g.select('rect').style('fill-opacity', 1)),
         (exit) =>
           exit
             .call((g) =>
@@ -350,7 +355,6 @@ export class AppComponent implements OnInit {
     // });
 
     //
-    node.join().select('rect').style('fill-opacity', 1);
 
     // Change the circle fill depending on whether it has children and is collapsed
     node
@@ -443,8 +447,8 @@ export class AppComponent implements OnInit {
           y: source.y,
         };
         return this.diagonal({
-          source: [o.y, o.x],
-          target: [o.y, o.x],
+          source: [o.x, o.y],
+          target: [o.x, o.y],
         });
       })
       .remove();
