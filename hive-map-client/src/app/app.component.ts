@@ -228,7 +228,7 @@ export class AppComponent implements OnInit {
       d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
-      // d.y = (d.depth * 500); //500px per level.
+      // d.y = d.depth * 500; //500px per level.
       return d.data.id || (d.data.id = this.i++);
     });
     // Update the nodes…
@@ -253,9 +253,6 @@ export class AppComponent implements OnInit {
                 ')'
               );
             })
-            .on('click', (event, d) => {
-              return this.click(event, d);
-            })
             // Transition nodes to their new position.
             .call((g) =>
               g
@@ -264,6 +261,18 @@ export class AppComponent implements OnInit {
                 .attr('transform', (d) => {
                   return 'translate(' + d.y + ',' + d.x + ')';
                 })
+            )
+            // rect enter
+            .call((g) =>
+              g
+                .append('rect')
+                .attr('y', -25)
+                .attr('x', -100)
+                .attr('width', 200)
+                .attr('height', 50)
+                .style('fill-opacity', 0.5)
+                .style('fill', '#5396ff')
+                .style('rx', 15)
             )
             // circle enter
             .call((g) =>
@@ -324,7 +333,24 @@ export class AppComponent implements OnInit {
                 .duration(this.duration)
                 .style('fill-opacity', 0)
             )
-      );
+            .call((g) =>
+              g
+                .select('rect')
+                .transition()
+                .duration(this.duration)
+                .style('fill-opacity', 0)
+            )
+      )
+      .on('click', (event, d) => {
+        return this.click(event, d);
+      });
+    // .on('dblclick', (event) => {
+    //   event.preventDefault();
+    //   console.log(event);
+    // });
+
+    //
+    node.join().select('rect').style('fill-opacity', 1);
 
     // Change the circle fill depending on whether it has children and is collapsed
     node
@@ -373,51 +399,55 @@ export class AppComponent implements OnInit {
     //     // outCircle(node);
     //   });
 
-    // // Update the links…
-    // let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
-    //   return d.target.id;
-    // });
+    // Update the links…
+    let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
+      return d.target.data.id;
+    });
 
-    // // Enter any new links at the parent's previous position.
-    // let linkEnter = link
-    //   .enter()
-    //   .insert('path', 'g')
-    //   .attr('class', 'link')
-    //   .attr('d', (d: HierarchyPointLink<Message>) => {
-    //     var o = {
-    //       x: (source as any).x0,
-    //       y: (source as any).y0,
-    //     };
-    //     return this.diagonal({
-    //       source: [o.x, o.y],
-    //       target: [o.x, o.y],
-    //     });
-    //   });
+    // Enter any new links at the parent's previous position.
+    let linkEnter = link
+      .enter()
+      .insert('path', 'g')
+      .attr('class', 'link')
+      .attr('d', (d: HierarchyPointLink<Message>) => {
+        var o = {
+          x: (source as any).x0,
+          y: (source as any).y0,
+        };
+        return this.diagonal({
+          source: [o.x, o.y],
+          target: [o.x, o.y],
+        });
+      });
 
-    // // Transition links to their new position.
-    // link
-    //   .merge(linkEnter)
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('d', (d: HierarchyPointLink<Message>) =>
-    //     this.diagonal({
-    //       source: [d.source.x, d.source.y],
-    //       target: [d.target.x, d.target.y],
-    //     })
-    //   );
+    // Transition links to their new position.
+    link
+      .merge(linkEnter)
+      .transition()
+      .duration(this.duration)
+      .attr('d', (d: HierarchyPointLink<Message>) =>
+        this.diagonal({
+          source: [d.source.x, d.source.y],
+          target: [d.target.x, d.target.y],
+        })
+      );
 
-    // // Transition exiting nodes to the parent's new position.
-    // link
-    //   .exit()
-    //   .transition()
-    //   .duration(this.duration)
-    //   .attr('d', (d: HierarchyPointLink<Message>) =>
-    //     this.diagonal({
-    //       source: [source.x, source.y],
-    //       target: [source.x, source.y],
-    //     })
-    //   )
-    //   .remove();
+    // Transition exiting nodes to the parent's new position.
+    link
+      .exit()
+      .transition()
+      .duration(this.duration)
+      .attr('d', (d: HierarchyPointLink<Message>) => {
+        var o = {
+          x: source.x,
+          y: source.y,
+        };
+        return this.diagonal({
+          source: [o.y, o.x],
+          target: [o.y, o.x],
+        });
+      })
+      .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
