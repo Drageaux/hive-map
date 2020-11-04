@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
-import { HierarchyPointLink } from 'd3';
+import { HierarchyPointLink, D3DragEvent } from 'd3';
 
 @Component({
   selector: 'app-root',
@@ -23,9 +23,9 @@ export class AppComponent implements OnInit {
     .y((d) => d[0]); // node paths
   root: d3.HierarchyPointNode<Message> = this.d3tree(d3.hierarchy(this.data));
   // svg-related objects
-  svg;
+  svg: d3.Selection<SVGElement, {}, HTMLElement, any>;
   // append a group which holds all nodes and which the zoom Listener can act upon.
-  svgGroup;
+  svgGroup: d3.Selection<SVGGElement, {}, HTMLElement, any>;
 
   // calculate total nodes, max label length
   totalNodes = 0;
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit {
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
     this.svg = d3
-      .select('#hive-map')
+      .select<SVGElement, {}>('#hive-map')
       .attr('width', viewerWidth)
       .attr('height', viewerHeight)
       .attr('class', 'overlay');
@@ -103,13 +103,16 @@ export class AppComponent implements OnInit {
     // Define the dragListener for drag/drop behaviour of nodes.
     this.dragListener = d3
       .drag()
-      .on('start', (d) => {
-        console.log(d);
+      .on('start', (e: any) => {
+        e.source;
+        console.log(e);
         // TODO: move root
-        if (d === this.root) {
+        if (e === this.root) {
           return;
         }
         this.dragStarted = true;
+        // let nodes = tree.nodes(d);
+        e.sourceEvent.stopPropagation();
       })
       .on('drag', () => {})
       .on('end', () => {});
@@ -173,8 +176,8 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: d3.HierarchyPointNode<Message>) {
-    console.log('zoom level:', d3.zoomTransform(this.svg).k);
-    let scale = d3.zoomTransform(this.svg).k;
+    console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
+    let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
     let y = -source.x;
     x = x * scale + window.innerWidth / 2;
