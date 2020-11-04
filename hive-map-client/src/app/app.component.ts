@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
-import { HierarchyPointLink, D3DragEvent } from 'd3';
+import { HierarchyPointLink, D3DragEvent, HierarchyPointNode } from 'd3';
+import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +22,9 @@ export class AppComponent implements OnInit {
     .linkHorizontal()
     .x((d) => d[1])
     .y((d) => d[0]); // node paths
-  root: d3.HierarchyPointNode<Message> = this.d3tree(d3.hierarchy(this.data));
+  root: CollapsibleHierarchyPointNode<Message> = this.d3tree(
+    d3.hierarchy(this.data)
+  );
   // svg-related objects
   svg: d3.Selection<SVGElement, {}, HTMLElement, any>;
   // append a group which holds all nodes and which the zoom Listener can act upon.
@@ -175,7 +178,7 @@ export class AppComponent implements OnInit {
   // }
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
-  centerNode(source: d3.HierarchyPointNode<Message>) {
+  centerNode(source: CollapsibleHierarchyPointNode<Message>) {
     console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -207,7 +210,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  expand(d) {
+  expand(d: CollapsibleHierarchyPointNode<Message>) {
     if (d._children) {
       d.children = d._children;
       d.children.forEach(this.expand);
@@ -215,7 +218,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  toggleChildren(d) {
+  toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
     console.log(d);
     if (d.children) {
       d._children = d.children;
@@ -239,7 +242,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update(source: d3.HierarchyPointNode<Message>) {
+  update(source: HierarchyPointNode<Message>) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -263,7 +266,9 @@ export class AppComponent implements OnInit {
 
     // Compute the new tree layout.
     const treeRoot = this.d3tree(this.root);
-    const nodes = treeRoot.descendants();
+    const nodes: CollapsibleHierarchyPointNode<
+      Message
+    >[] = treeRoot.descendants();
     const links = treeRoot.links();
 
     // Set widths between levels based on maxLabelLength.
@@ -277,7 +282,7 @@ export class AppComponent implements OnInit {
     // Update the nodes…
     let node = this.svgGroup
       .selectAll('g.node')
-      .data(nodes, (d) => {
+      .data(nodes, (d: CollapsibleHierarchyPointNode<Message>) => {
         // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
         return d.data.id || (d.data.id = this.i++);
       })
@@ -314,7 +319,7 @@ export class AppComponent implements OnInit {
                 .append('circle')
                 .attr('class', 'nodeCircle')
                 .attr('r', 0)
-                .style('fill', (d) => {
+                .style('fill', (d: CollapsibleHierarchyPointNode<Message>) => {
                   return d._children ? 'lightsteelblue' : '#fff';
                 })
             )
@@ -379,18 +384,16 @@ export class AppComponent implements OnInit {
 
     // Transition nodes to their new position.
     node
-      .join()
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
         return 'translate(' + d.y + ',' + d.x + ')';
       });
 
-    node.join().select('rect').style('fill-opacity', 1);
+    node.select('rect').style('fill-opacity', 1);
 
     // Update the text to reflect whether node has children or not.
     node
-      .join()
       .select('text')
       .attr('x', (d) => {
         // return d.children || d._children ? -10 : 10;
@@ -398,9 +401,9 @@ export class AppComponent implements OnInit {
       })
       .attr('dy', '.35em')
       .attr('class', 'nodeText')
-      .attr('text-anchor', (d) => {
-        // return d.children || d._children ? 'end' : 'start';
-      })
+      // .attr('text-anchor', (d) => {
+      //   // return d.children || d._children ? 'end' : 'start';
+      // })
       .attr('fill', 'white')
       .text((d) => {
         return d.data.text;
@@ -435,9 +438,11 @@ export class AppComponent implements OnInit {
     //   });
 
     // Update the links…
-    let link = this.svgGroup.selectAll('path.link').data(links, (d) => {
-      return d.target.data.id;
-    });
+    let link = this.svgGroup
+      .selectAll<SVGPathElement, {}>('path.link')
+      .data(links, (d: HierarchyPointLink<Message>) => {
+        return d.target.data.id;
+      });
 
     // Enter any new links at the parent's previous position.
     let linkEnter = link
