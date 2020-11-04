@@ -274,24 +274,15 @@ export class AppComponent implements OnInit {
                 ')'
               );
             })
-            // Transition nodes to their new position.
-            .call((g) =>
-              g
-                .transition()
-                .duration(this.duration)
-                .attr('transform', (d) => {
-                  return 'translate(' + d.y + ',' + d.x + ')';
-                })
-            )
             // rect enter
             .call((g) =>
               g
                 .append('rect')
                 .attr('y', -20)
-                .attr('x', -100)
+                .attr('x', 0)
                 .attr('width', 200)
                 .attr('height', 40)
-                .style('fill-opacity', 1)
+                .style('fill-opacity', 0)
                 .style('fill', '#5396ff')
                 .style('rx', 15)
             )
@@ -306,36 +297,16 @@ export class AppComponent implements OnInit {
                 })
             )
             // text enter
-            .call((g) =>
-              g
-                .append('text')
-                .attr('x', (d) => {
-                  return d.children || d._children ? -10 : 10;
-                })
-                .attr('dy', '.35em')
-                .attr('class', 'nodeText')
-                .attr('text-anchor', (d) => {
-                  return d.children || d._children ? 'end' : 'start';
-                })
-                .text((d) => {
-                  return d.data.text;
-                })
-                .style('fill-opacity', 0)
-            ),
+            .call((g) => g.append('text')),
         // node update
         (update) =>
-          // Transition nodes to their new position.
-          update
-            .call((g) =>
-              g
-                .transition()
-                .duration(this.duration)
-                .attr('transform', (d) => {
-                  console.log(d.data, d.y, d.x);
-                  return 'translate(' + d.y + ',' + d.x + ')';
-                })
-            )
-            .call((g) => g.select('rect').style('fill-opacity', 1)),
+          update.call((g) =>
+            g
+              .select('rect')
+              .transition()
+              .duration(this.duration)
+              .style('fill-opacity', 1)
+          ),
         (exit) =>
           exit
             .call((g) =>
@@ -348,17 +319,17 @@ export class AppComponent implements OnInit {
                 })
                 .remove()
             )
-            .call((g) => g.select('circle').attr('r', 0))
             .call((g) =>
               g
-                .select('text')
+                .select('rect')
                 .transition()
                 .duration(this.duration)
                 .style('fill-opacity', 0)
             )
+            .call((g) => g.select('circle').attr('r', 0))
             .call((g) =>
               g
-                .select('rect')
+                .select('text')
                 .transition()
                 .duration(this.duration)
                 .style('fill-opacity', 0)
@@ -375,35 +346,54 @@ export class AppComponent implements OnInit {
     //
 
     // Change the circle fill depending on whether it has children and is collapsed
+    // node
+    //   .join()
+    //   .select('circle.nodeCircle')
+    //   .style('r', (d) => 4.5)
+    //   .style('fill', (d) => {
+    //     return d._children ? 'lightsteelblue' : '#fff';
+    //   });
+
+    // Transition nodes to their new position.
     node
       .join()
-      .select('circle.nodeCircle')
-      .style('r', (d) => 4.5)
-      .style('fill', (d) => {
-        return d._children ? 'lightsteelblue' : '#fff';
+      .transition()
+      .duration(this.duration)
+      .attr('transform', (d) => {
+        return 'translate(' + d.y + ',' + d.x + ')';
       });
+
+    node.join().select('rect').style('fill-opacity', 1);
 
     // Update the text to reflect whether node has children or not.
     node
       .join()
       .select('text')
       .attr('x', (d) => {
-        return d.children || d._children ? -10 : 10;
+        // return d.children || d._children ? -10 : 10;
+        return 50;
       })
+      .attr('dy', '.35em')
+      .attr('class', 'nodeText')
       .attr('text-anchor', (d) => {
-        return d.children || d._children ? 'end' : 'start';
+        // return d.children || d._children ? 'end' : 'start';
       })
+      .attr('fill', 'white')
       .text((d) => {
         return d.data.text;
-      });
-
-    // Fade the text in
-    node
-      .join()
-      .select('text')
+      })
+      // Fade the text in
       .transition()
       .duration(this.duration)
       .style('fill-opacity', 1);
+
+    // // Fade the text in
+    // node
+    //   .join()
+    //   .select('text')
+    //   .transition()
+    //   .duration(this.duration)
+    //   .style('fill-opacity', 1);
 
     // // phantom node to give us mouseover in a radius around it
     // nodeEnter
