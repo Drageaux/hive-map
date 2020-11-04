@@ -106,17 +106,27 @@ export class AppComponent implements OnInit {
     // Define the dragListener for drag/drop behaviour of nodes.
     this.dragListener = d3
       .drag()
-      .on('start', (e: any) => {
-        e.source;
-        console.log(e);
-        // TODO: move root
-        if (e === this.root) {
-          return;
+      .on(
+        'start',
+        (
+          event: D3DragEvent<
+            SVGGElement,
+            {},
+            CollapsibleHierarchyPointNode<Message>
+          >
+        ) => {
+          if (event.subject === this.root) {
+            // TODO: move root
+            return;
+          }
+          this.dragStarted = true;
+          // let nodes = tree.nodes(d);
+          // NOTE: important, suppress the mouseover event on the node being dragged.
+          // Otherwise it will absorb the mouseover event and the underlying node will not detect it
+          // d3.select(this).attr('pointer-events', 'none');
+          event.sourceEvent.stopPropagation();
         }
-        this.dragStarted = true;
-        // let nodes = tree.nodes(d);
-        e.sourceEvent.stopPropagation();
-      })
+      )
       .on('drag', () => {})
       .on('end', () => {});
 
