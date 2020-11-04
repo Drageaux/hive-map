@@ -30,11 +30,15 @@ export class AppComponent implements OnInit {
   // calculate total nodes, max label length
   totalNodes = 0;
   maxLabelLength = 0;
+  // zoom
+  zoomListener;
+  // drag
+  dragListener;
   // variables for drag/drop
   selectedNode = null;
   draggingNode = null;
-  // zoom
-  zoomListener;
+  dragStarted = false;
+
   // panning variables
   panSpeed = 200;
   panBoundary = 20; // Within 20px from edges will pan when dragging.
@@ -86,15 +90,29 @@ export class AppComponent implements OnInit {
     recurVisit(this.data, visit, getNextChildren);
 
     this.sort();
-    // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
+
+    // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     this.zoomListener = d3
       .zoom()
       .scaleExtent([0.1, 3])
       .on('zoom', ({ transform }) => {
         this.svgGroup.attr('transform', transform);
       });
-
     this.svg.call(this.zoomListener);
+
+    // Define the dragListener for drag/drop behaviour of nodes.
+    this.dragListener = d3
+      .drag()
+      .on('start', (d) => {
+        console.log(d);
+        // TODO: move root
+        if (d === this.root) {
+          return;
+        }
+        this.dragStarted = true;
+      })
+      .on('drag', () => {})
+      .on('end', () => {});
 
     (this.root as any).x0 = viewerHeight / 2;
     (this.root as any).y0 = 0;
@@ -175,8 +193,9 @@ export class AppComponent implements OnInit {
     // this.zoomListener.translate([x, y]);
   }
 
-  // Helper functions for collapsing and expanding nodes.
-
+  /*************************************************************************/
+  /**************************** HELPER FUNCTIONS ***************************/
+  /*************************************************************************/
   collapse(d) {
     if (d.children) {
       d._children = d.children;
@@ -337,7 +356,8 @@ export class AppComponent implements OnInit {
       )
       .on('click', (event, d) => {
         return this.click(event, d);
-      });
+      })
+      .call(this.dragListener);
     // .on('dblclick', (event) => {
     //   event.preventDefault();
     //   console.log(event);
