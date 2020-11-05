@@ -105,7 +105,7 @@ export class AppComponent implements OnInit {
 
     // Define the dragListener for drag/drop behaviour of nodes.
     this.dragListener = d3
-      .drag()
+      .drag<SVGGElement, {}>()
       .on(
         'start',
         (
@@ -127,7 +127,26 @@ export class AppComponent implements OnInit {
           event.sourceEvent.stopPropagation();
         }
       )
-      .on('drag', () => {})
+      .on(
+        'drag',
+        (
+          event: D3DragEvent<
+            SVGGElement,
+            {},
+            CollapsibleHierarchyPointNode<Message>
+          >
+        ) => {
+          console.log(event);
+          if (event.subject === this.root) {
+            // TODO: move root
+            return;
+          }
+
+          if (this.dragStarted) {
+            this.initiateDrag(event.subject);
+          }
+        }
+      )
       .on('end', () => {});
 
     (this.root as any).x0 = viewerHeight / 2;
@@ -140,6 +159,10 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /**************************** MINDMAP CONTROLS ***************************/
   /*************************************************************************/
+  initiateDrag(domNode: CollapsibleHierarchyPointNode<Message>) {
+    this.draggingNode = domNode;
+  }
+
   sort() {}
 
   pan(domNode, direction) {
@@ -431,21 +454,21 @@ export class AppComponent implements OnInit {
     //   .duration(this.duration)
     //   .style('fill-opacity', 1);
 
-    // // phantom node to give us mouseover in a radius around it
-    // nodeEnter
-    //   .append('circle')
-    //   .merge(node)
-    //   .attr('class', 'ghostCircle')
-    //   .attr('r', 30)
-    //   .attr('opacity', 0.2) // change this to zero to hide the target area
-    //   .style('fill', 'red')
-    //   .attr('pointer-events', 'mouseover')
-    //   .on('mouseover', function (node) {
-    //     // overCircle(node);
-    //   })
-    //   .on('mouseout', function (node) {
-    //     // outCircle(node);
-    //   });
+    // phantom node to give us mouseover in a radius around it
+    node
+      .append('circle')
+      .attr('class', 'ghostCircle')
+      .attr('r', 30)
+      .attr('opacity', 0.2) // change this to zero to hide the target area
+      .style('fill', 'red')
+      .attr('pointer-events', 'mouseover')
+      .on('mouseover', function (node) {
+        console.log('overCircle');
+        // overCircle(node);
+      })
+      .on('mouseout', function (node) {
+        // outCircle(node);
+      });
 
     // Update the links…
     let link = this.svgGroup
