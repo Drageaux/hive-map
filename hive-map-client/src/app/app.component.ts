@@ -119,7 +119,7 @@ export class AppComponent implements OnInit {
   }
 
   defineDragListener() {
-    let dragStart = (
+    let onStart = (
       g: SVGGElement,
       event: D3DragEvent<
         SVGGElement,
@@ -131,7 +131,6 @@ export class AppComponent implements OnInit {
       console.log(g, event, d);
       if (d === this.root) {
         // TODO: move root
-        console.log('test');
         return;
       }
       this.dragStarted = true;
@@ -141,10 +140,43 @@ export class AppComponent implements OnInit {
       // d3.select(this).attr('pointer-events', 'none');
       event.sourceEvent.stopPropagation();
     };
+    let onDrag = (
+      g: SVGGElement,
+      event: D3DragEvent<
+        SVGGElement,
+        CollapsibleHierarchyPointNode<Message>,
+        CollapsibleHierarchyPointNode<Message>
+      >,
+      d: CollapsibleHierarchyPointNode<Message>
+    ) => {
+      if (d === this.root) {
+        // TODO: move root
+        return;
+      }
+      if (this.dragStarted) {
+        let domNode = g;
+        this.initiateDrag(d, domNode);
+      }
+    };
+    let onEnd = (
+      g: SVGGElement,
+      event: D3DragEvent<
+        SVGGElement,
+        CollapsibleHierarchyPointNode<Message>,
+        CollapsibleHierarchyPointNode<Message>
+      >,
+      d: CollapsibleHierarchyPointNode<Message>
+    ) => {};
     this.dragListener = d3
       .drag<SVGGElement, CollapsibleHierarchyPointNode<Message>>()
       .on('start', function (event, d) {
-        return dragStart(this, event, d);
+        return onStart(this, event, d);
+      })
+      .on('drag', function (event, d) {
+        return onDrag(this, event, d);
+      })
+      .on('end', function (event, d) {
+        return onEnd(this, event, d);
       });
 
     // .on(
@@ -174,7 +206,10 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /**************************** MINDMAP CONTROLS ***************************/
   /*************************************************************************/
-  initiateDrag(domNode: CollapsibleHierarchyPointNode<Message>) {
+  initiateDrag(
+    datum: CollapsibleHierarchyPointNode<Message>,
+    domNode: SVGGElement
+  ) {
     this.draggingNode = domNode;
   }
 
