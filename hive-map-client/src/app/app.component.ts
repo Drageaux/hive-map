@@ -153,7 +153,6 @@ export class AppComponent implements OnInit {
         // TODO: move root
         return;
       }
-      console.log(g, event, d);
       if (this.dragStarted) {
         this.initiateDrag(d, g);
       }
@@ -181,11 +180,22 @@ export class AppComponent implements OnInit {
       }
 
       if (this.selectedNode) {
-        // now remove the element from the parent, and insert it into the new elements children
-        var index = d.parent.children.indexOf(d);
+        // now remove the element from the parent
+        let index = d.parent.children.indexOf(d);
+        console.log('index of node in parent list', index);
         if (index > -1) {
           d.parent.children.splice(index, 1);
         }
+        // insert it into the new elements children
+        console.log(this.selectedNode);
+        console.log(
+          'typeof selected node children',
+          typeof this.selectedNode.children
+        );
+        console.log(
+          'typeof selected node _children',
+          typeof this.selectedNode._children
+        );
         if (
           typeof this.selectedNode.children !== 'undefined' ||
           typeof this.selectedNode._children !== 'undefined'
@@ -512,11 +522,11 @@ export class AppComponent implements OnInit {
                 .attr('opacity', 0.2) // change this to zero to hide the target area
                 .style('fill', 'red')
                 .attr('pointer-events', 'mouseover')
-                .on('mouseover', (node) => {
-                  this.overCircle(node);
+                .on('mouseover', (event, d) => {
+                  this.overCircle(d);
                 })
-                .on('mouseout', (node) => {
-                  this.outCircle(node);
+                .on('mouseout', (event, d) => {
+                  this.outCircle(d);
                 })
             ),
         // node update
