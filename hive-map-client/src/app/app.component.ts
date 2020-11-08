@@ -46,6 +46,7 @@ export class AppComponent implements OnInit {
   selectedNode = null;
   draggingNode = null;
   dragStarted = false;
+  relCoords;
 
   // panning variables
   panSpeed = 200;
@@ -111,8 +112,8 @@ export class AppComponent implements OnInit {
     // Define the dragListener for drag/drop behaviour of nodes.
     this.defineDragListener();
 
-    (this.root as any).x0 = viewerHeight / 2;
-    (this.root as any).y0 = 0;
+    this.root.x0 = viewerHeight / 2;
+    this.root.y0 = 0;
 
     this.update(this.root);
     this.centerNode(this.root);
@@ -128,7 +129,6 @@ export class AppComponent implements OnInit {
       >,
       d: CollapsibleHierarchyPointNode<Message>
     ): void => {
-      console.log(g, event, d);
       if (d === this.root) {
         // TODO: move root
         return;
@@ -137,7 +137,6 @@ export class AppComponent implements OnInit {
       // let nodes = tree.nodes(d);
       // NOTE: important, suppress the mouseover event on the node being dragged.
       // Otherwise it will absorb the mouseover event and the underlying node will not detect it
-      // d3.select(this).attr('pointer-events', 'none');
       event.sourceEvent.stopPropagation();
     };
     let onDrag = (
@@ -153,10 +152,17 @@ export class AppComponent implements OnInit {
         // TODO: move root
         return;
       }
+      console.log(g, event, d);
       if (this.dragStarted) {
         let domNode = g;
         this.initiateDrag(d, domNode);
       }
+
+      // TODO: get coords of mouseEvent relative to svg container to allow for panning
+      // relCoords = event.pageX
+
+      d.x0 += event.dy;
+      d.y0 += event.dx;
     };
     let onEnd = (
       g: SVGGElement,
@@ -325,7 +331,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update(source: HierarchyPointNode<Message>) {
+  update(source: CollapsibleHierarchyPointNode<Message>) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -381,9 +387,9 @@ export class AppComponent implements OnInit {
             .attr('transform', (d) => {
               return (
                 'translate(' +
-                ((source as any).y0 || source.y) +
+                (source.y0 || source.y) +
                 ',' +
-                ((source as any).x0 || source.x) +
+                (source.x0 || source.x) +
                 ')'
               );
             })
@@ -537,8 +543,8 @@ export class AppComponent implements OnInit {
       .attr('class', 'link')
       .attr('d', (d: HierarchyPointLink<Message>) => {
         var o = {
-          x: (source as any).x0,
-          y: (source as any).y0,
+          x: source.x0,
+          y: source.y0,
         };
         return this.diagonal({
           source: [o.x, o.y],
@@ -577,8 +583,8 @@ export class AppComponent implements OnInit {
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      (d as any).x0 = d.x;
-      (d as any).y0 = d.y;
+      d.x0 = d.x;
+      d.y0 = d.y;
     });
   }
 }
