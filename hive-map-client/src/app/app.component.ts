@@ -277,16 +277,18 @@ export class AppComponent implements OnInit {
     }
 
     // remove parent link
-    // let parentLink = treeRoot.links(tree.nodes(this.draggingNode.parent));
-    // this.svgGroup
-    //   .selectAll('path.link')
-    //   .filter(function (d, i) {
-    //     if (d.target.id == draggingNode.id) {
-    //       return true;
-    //     }
-    //     return false;
-    //   })
-    //   .remove();
+    let parentNode = datum.parent;
+    let parentLink = parentNode.links();
+    this.svgGroup
+      .selectAll<SVGPathElement, {}>('path.link')
+      .filter((t: HierarchyPointLink<Message>, i) => {
+        console.log('filtering', t, i, datum);
+        if (t.target.data.id == datum.data.id) {
+          return true;
+        }
+        return false;
+      })
+      .remove();
 
     this.dragStarted = null;
   }
@@ -419,11 +421,11 @@ export class AppComponent implements OnInit {
 
   overCircle(d: CollapsibleHierarchyPointNode<Message>) {
     this.selectedNode = d;
-    // updateTempConnector();
+    this.updateTempConnector(d);
   }
   outCircle(d: CollapsibleHierarchyPointNode<Message>) {
     this.selectedNode = null;
-    // updateTempConnector();
+    this.updateTempConnector(d);
   }
 
   // Function to update the temporary connector indicating dragging affiliation
@@ -434,20 +436,15 @@ export class AppComponent implements OnInit {
       // have to flip the source coordinates since we did this for the existing connectors on the original tree
       data = [
         {
-          source: {
-            x: this.selectedNode.y0,
-            y: this.selectedNode.x0,
-          },
-          target: {
-            x: d.y0,
-            y: d.x0,
-          },
+          source: d,
+          target: this.selectedNode,
         },
       ];
     }
     let link = this.svgGroup
       .selectAll<SVGPathElement, {}>('templink')
       .data(data, (d: HierarchyPointLink<Message>) => {
+        console.log(d);
         return d.target.data.id;
       });
 
@@ -455,7 +452,12 @@ export class AppComponent implements OnInit {
       .enter()
       .append('path')
       .attr('class', 'templink')
-      .attr('d', this.diagonal)
+      .attr('d', (d: HierarchyPointLink<Message>) => {
+        return this.diagonal({
+          source: [d.source.x, d.source.y],
+          target: [d.target.x, d.target.y],
+        });
+      })
       .attr('pointer-events', 'none');
 
     link.attr('d', this.diagonal);
