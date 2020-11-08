@@ -164,7 +164,7 @@ export class AppComponent implements OnInit {
       d.y0 += event.dx;
       select(g).attr('transform', 'translate(' + d.y0 + ',' + d.x0 + ')');
 
-      // TODO: updateTempConnector()
+      this.updateTempConnector(d);
     };
     let onEnd = (
       g: SVGGElement,
@@ -187,27 +187,25 @@ export class AppComponent implements OnInit {
           d.parent.children.splice(index, 1);
         }
         // insert it into the new elements children
-        console.log(this.selectedNode);
-        console.log(
-          'typeof selected node children',
-          typeof this.selectedNode.children
-        );
-        console.log(
-          'typeof selected node _children',
-          typeof this.selectedNode._children
-        );
+        console.log('targetNode:', this.selectedNode);
+
         if (
           typeof this.selectedNode.children !== 'undefined' ||
           typeof this.selectedNode._children !== 'undefined'
         ) {
+          console.log('has children');
           if (typeof this.selectedNode.children !== 'undefined') {
+            console.log('currently not collapsed');
             this.selectedNode.children.push(d);
           } else {
+            console.log('currently collapsed');
             this.selectedNode._children.push(d);
           }
         } else {
+          console.log('no children');
           this.selectedNode.children = [];
           this.selectedNode.children.push(d);
+          console.log('now with children', this.selectedNode);
         }
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
         this.expand(this.selectedNode);
@@ -282,7 +280,6 @@ export class AppComponent implements OnInit {
     this.svgGroup
       .selectAll<SVGPathElement, {}>('path.link')
       .filter((t: HierarchyPointLink<Message>, i) => {
-        console.log('filtering', t, i, datum);
         if (t.target.data.id == datum.data.id) {
           return true;
         }
@@ -359,7 +356,7 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: CollapsibleHierarchyPointNode<Message>) {
-    console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
+    // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
     let y = -source.x;
@@ -399,7 +396,6 @@ export class AppComponent implements OnInit {
   }
 
   toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
-    console.log(d);
     if (d.children) {
       d._children = d.children;
       d.children = null;
@@ -415,7 +411,6 @@ export class AppComponent implements OnInit {
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
-    console.log('clicked', d.data.id);
     this.centerNode(d);
   }
 
@@ -429,8 +424,7 @@ export class AppComponent implements OnInit {
   }
 
   // Function to update the temporary connector indicating dragging affiliation
-  updateTempConnector(d) {
-    console.log('connect', d, 'to', this.selectedNode);
+  updateTempConnector(d: CollapsibleHierarchyPointNode<Message>) {
     var data = [];
     if (d !== null && this.selectedNode !== null) {
       // have to flip the source coordinates since we did this for the existing connectors on the original tree
@@ -441,28 +435,38 @@ export class AppComponent implements OnInit {
         },
       ];
     }
-    let link = this.svgGroup
-      .selectAll<SVGPathElement, {}>('templink')
+    let tempLink = this.svgGroup
+      .selectAll<SVGPathElement, {}>('path.templink')
       .data(data, (d: HierarchyPointLink<Message>) => {
-        console.log(d);
         return d.target.data.id;
       });
 
-    link
+    tempLink
       .enter()
       .append('path')
       .attr('class', 'templink')
       .attr('d', (d: HierarchyPointLink<Message>) => {
         return this.diagonal({
-          source: [d.source.x, d.source.y],
+          source: [
+            (d.source as CollapsibleHierarchyPointNode<Message>).x0,
+            (d.source as CollapsibleHierarchyPointNode<Message>).y0,
+          ],
           target: [d.target.x, d.target.y],
         });
       })
       .attr('pointer-events', 'none');
 
-    link.attr('d', this.diagonal);
+    tempLink.attr('d', (d: HierarchyPointLink<Message>) => {
+      return this.diagonal({
+        source: [
+          (d.source as CollapsibleHierarchyPointNode<Message>).x0,
+          (d.source as CollapsibleHierarchyPointNode<Message>).y0,
+        ],
+        target: [d.target.x, d.target.y],
+      });
+    });
 
-    link.exit().remove();
+    tempLink.exit().remove();
   }
 
   /*************************************************************************/
