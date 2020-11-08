@@ -292,16 +292,16 @@ export class AppComponent implements OnInit {
   }
 
   endDrag(d: CollapsibleHierarchyPointNode<Message>, g: SVGGElement) {
-    this.selectedNode = null;
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
     d3.select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
-    // TODO updateTempConnector();
+    this.updateTempConnector(d);
     if (d !== null) {
       this.update(this.root);
       this.centerNode(d);
     }
+    this.selectedNode = null;
   }
 
   sort(tree) {
@@ -417,13 +417,50 @@ export class AppComponent implements OnInit {
     this.centerNode(d);
   }
 
-  overCircle(d) {
+  overCircle(d: CollapsibleHierarchyPointNode<Message>) {
     this.selectedNode = d;
     // updateTempConnector();
   }
-  outCircle(d) {
+  outCircle(d: CollapsibleHierarchyPointNode<Message>) {
     this.selectedNode = null;
     // updateTempConnector();
+  }
+
+  // Function to update the temporary connector indicating dragging affiliation
+  updateTempConnector(d) {
+    console.log('connect', d, 'to', this.selectedNode);
+    var data = [];
+    if (d !== null && this.selectedNode !== null) {
+      // have to flip the source coordinates since we did this for the existing connectors on the original tree
+      data = [
+        {
+          source: {
+            x: this.selectedNode.y0,
+            y: this.selectedNode.x0,
+          },
+          target: {
+            x: d.y0,
+            y: d.x0,
+          },
+        },
+      ];
+    }
+    let link = this.svgGroup
+      .selectAll<SVGPathElement, {}>('templink')
+      .data(data, (d: HierarchyPointLink<Message>) => {
+        return d.target.data.id;
+      });
+
+    link
+      .enter()
+      .append('path')
+      .attr('class', 'templink')
+      .attr('d', this.diagonal)
+      .attr('pointer-events', 'none');
+
+    link.attr('d', this.diagonal);
+
+    link.exit().remove();
   }
 
   /*************************************************************************/
@@ -616,14 +653,6 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .style('fill-opacity', 1);
-
-    // // Fade the text in
-    // node
-    //   .join()
-    //   .select('text')
-    //   .transition()
-    //   .duration(this.duration)
-    //   .style('fill-opacity', 1);
 
     // Update the links…
     let link = this.svgGroup
