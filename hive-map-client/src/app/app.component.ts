@@ -44,9 +44,7 @@ export class AppComponent implements OnInit {
   // drag
   dragListener;
   // variables for drag/drop
-  domNode = null;
   selectedNode = null;
-  draggingNode = null;
   dragStarted = false;
   relCoords;
 
@@ -182,6 +180,7 @@ export class AppComponent implements OnInit {
       if (this.selectedNode) {
         // now remove the element from the parent
         let index = d.parent.children.indexOf(d);
+        console.log("parent's children", d.parent.children);
         console.log('index of node in parent list', index);
         if (index > -1) {
           d.parent.children.splice(index, 1);
@@ -195,10 +194,8 @@ export class AppComponent implements OnInit {
         ) {
           console.log('has children');
           if (typeof this.selectedNode.children !== 'undefined') {
-            console.log('currently not collapsed');
             this.selectedNode.children.push(d);
           } else {
-            console.log('currently collapsed');
             this.selectedNode._children.push(d);
           }
         } else {
@@ -207,9 +204,13 @@ export class AppComponent implements OnInit {
           this.selectedNode.children.push(d);
           console.log('now with children', this.selectedNode);
         }
+        // Update data source
+
+        d.parent = this.selectedNode;
+
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
         this.expand(this.selectedNode);
-        // this.sort();
+        this.sort();
         this.endDrag(d, g);
       } else {
         this.endDrag(d, g);
@@ -250,10 +251,10 @@ export class AppComponent implements OnInit {
       });
     // if nodes has children, remove the links and nodes
     let nodes = datum.descendants();
-    let treeRoot = this.d3tree(this.root);
+    let tree = this.d3tree(datum);
     if (nodes.length > 1) {
       // remove link paths
-      let links = treeRoot.links();
+      let links = tree.links();
       let nodePaths = this.svgGroup
         .selectAll<SVGPathElement, {}>('path.link')
         .data(links, (d: HierarchyPointLink<Message>) => d.target.data.id)
@@ -298,14 +299,15 @@ export class AppComponent implements OnInit {
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.updateTempConnector(d);
     if (d !== null) {
+      console.log(d);
       this.update(this.root);
       this.centerNode(d);
     }
   }
 
-  sort(tree) {
-    return tree.sort(function (a, b) {
-      return b.name.toLowerCase() < a.name.toLowerCase() ? 1 : -1;
+  sort() {
+    this.root.sort(function (a, b) {
+      return b.data.text.toLowerCase() < a.data.text.toLowerCase() ? 1 : -1;
     });
   }
 
