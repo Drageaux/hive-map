@@ -407,6 +407,15 @@ export class AppComponent implements OnInit {
     this.centerNode(d);
   }
 
+  overCircle(d) {
+    this.selectedNode = d;
+    // updateTempConnector();
+  }
+  outCircle(d) {
+    this.selectedNode = null;
+    // updateTempConnector();
+  }
+
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
@@ -493,7 +502,23 @@ export class AppComponent implements OnInit {
                 })
             )
             // text enter
-            .call((g) => g.append('text')),
+            .call((g) => g.append('text'))
+            // phantom node to give us mouseover in a radius around it
+            .call((g) =>
+              g
+                .append('circle')
+                .attr('class', 'ghostCircle')
+                .attr('r', 30)
+                .attr('opacity', 0.2) // change this to zero to hide the target area
+                .style('fill', 'red')
+                .attr('pointer-events', 'mouseover')
+                .on('mouseover', (node) => {
+                  this.overCircle(node);
+                })
+                .on('mouseout', (node) => {
+                  this.outCircle(node);
+                })
+            ),
         // node update
         (update) =>
           update.call((g) =>
@@ -589,22 +614,6 @@ export class AppComponent implements OnInit {
     //   .transition()
     //   .duration(this.duration)
     //   .style('fill-opacity', 1);
-
-    // phantom node to give us mouseover in a radius around it
-    node
-      .append('circle')
-      .attr('class', 'ghostCircle')
-      .attr('r', 30)
-      .attr('opacity', 0.2) // change this to zero to hide the target area
-      .style('fill', 'red')
-      .attr('pointer-events', 'mouseover')
-      .on('mouseover', function (node) {
-        console.log('overCircle');
-        // overCircle(node);
-      })
-      .on('mouseout', function (node) {
-        // outCircle(node);
-      });
 
     // Update the links…
     let link = this.svgGroup
