@@ -3,6 +3,7 @@ import { Message } from './messages/message';
 import * as d3 from 'd3';
 import exampleData from '../assets/mindmap-example.json';
 import {
+  select,
   HierarchyPointLink,
   D3DragEvent,
   HierarchyPointNode,
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
   // drag
   dragListener;
   // variables for drag/drop
+  domNode = null;
   selectedNode = null;
   draggingNode = null;
   dragStarted = false;
@@ -65,7 +67,6 @@ export class AppComponent implements OnInit {
       .attr('width', viewerWidth)
       .attr('height', viewerHeight)
       .attr('class', 'overlay');
-    // .call(zoomListener);
 
     this.svgGroup = this.svg.append('g');
 
@@ -98,7 +99,7 @@ export class AppComponent implements OnInit {
     // use the above functions to visit and establish maxLabelLength
     recurVisit(this.data, visit, getNextChildren);
 
-    this.sort();
+    // this.sort();
 
     // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     this.zoomListener = d3
@@ -154,8 +155,8 @@ export class AppComponent implements OnInit {
       }
       console.log(g, event, d);
       if (this.dragStarted) {
-        let domNode = g;
-        this.initiateDrag(d, domNode);
+        this.domNode = g;
+        this.initiateDrag(d, this.domNode);
       }
 
       // TODO: get coords of mouseEvent relative to svg container to allow for panning
@@ -163,6 +164,9 @@ export class AppComponent implements OnInit {
 
       d.x0 += event.dy;
       d.y0 += event.dx;
+      select(g).attr('transform', 'translate(' + d.y0 + ',' + d.x0 + ')');
+
+      // TODO: updateTempConnector()
     };
     let onEnd = (
       g: SVGGElement,
@@ -172,7 +176,42 @@ export class AppComponent implements OnInit {
         CollapsibleHierarchyPointNode<Message>
       >,
       d: CollapsibleHierarchyPointNode<Message>
-    ) => {};
+    ) => {
+      if (d === this.root) {
+        return;
+      }
+      this.domNode = g;
+
+      if (this.selectedNode) {
+        // now remove the element from the parent, and insert it into the new elements children
+        var index = this.draggingNode.parent.children.indexOf(
+          this.draggingNode
+        );
+        if (index > -1) {
+          this.draggingNode.parent.children.splice(index, 1);
+        }
+        if (
+          typeof this.selectedNode.children !== 'undefined' ||
+          typeof this.selectedNode._children !== 'undefined'
+        ) {
+          if (typeof this.selectedNode.children !== 'undefined') {
+            this.selectedNode.children.push(this.draggingNode);
+          } else {
+            this.selectedNode._children.push(this.draggingNode);
+          }
+        } else {
+          this.selectedNode.children = [];
+          this.selectedNode.children.push(this.draggingNode);
+        }
+        // Make sure that the node being added to is expanded so user can see added node is correctly moved
+        this.expand(this.selectedNode);
+        // this.sort();
+        this.endDrag();
+      } else {
+        this.endDrag();
+      }
+    };
+
     this.dragListener = d3
       .drag<SVGGElement, CollapsibleHierarchyPointNode<Message>>()
       .on('start', function (event, d) {
@@ -184,29 +223,6 @@ export class AppComponent implements OnInit {
       .on('end', function (event, d) {
         return onEnd(this, event, d);
       });
-
-    // .on(
-    //   'drag',
-    //   (
-    //     event: D3DragEvent<
-    //       SVGGElement,
-    //       {},
-    //       CollapsibleHierarchyPointNode<Message>
-    //     >,
-    //     node: CollapsibleHierarchyPointNode<Message>
-    //   ) => {
-    //     console.log('test', event, i, groups);
-    //     if (event.subject === this.root) {
-    //       // TODO: move root
-    //       return;
-    //     }
-
-    //     if (this.dragStarted) {
-    //       this.initiateDrag(event.subject);
-    //     }
-    //   }
-    // )
-    // .on('end', () => {});
   }
 
   /*************************************************************************/
@@ -217,9 +233,78 @@ export class AppComponent implements OnInit {
     domNode: SVGGElement
   ) {
     this.draggingNode = domNode;
+    d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
+    d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
+    d3.select(domNode).attr('class', 'node activeDrag');
+
+    this.svgGroup
+      .selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>('g.node')
+      .sort((a, b) => {
+        // select the parent and sort the path's
+        if (a.id != this.draggingNode.id) return 1;
+        // a is not the hovered element, send "a" to the back
+        else return -1; // a is the hovered element, bring "a" to the front
+      });
+    // if nodes has children, remove the links and nodes
+    let nodes = datum.descendants();
+    if (nodes.length > 1) {
+      // remove link paths
+      let treeRoot = this.d3tree(this.root);
+      let links = treeRoot.links();
+      let nodePaths = this.svgGroup
+        .selectAll<SVGPathElement, {}>('path.link')
+        .data(links, (d: HierarchyPointLink<Message>) => d.target.data.id)
+        .remove();
+      // remove child nodes
+      let nodesExit = this.svgGroup
+        .selectAll('g.node')
+        .data<CollapsibleHierarchyPointNode<Message>>(
+          nodes,
+          (d: CollapsibleHierarchyPointNode<Message>) => d.data.id
+        )
+        .filter(function (d, i) {
+          if (d.id == draggingNode.id) {
+            return false;
+          }
+          return true;
+        })
+        .remove();
+    }
+
+    // remove parent link
+    parentLink = tree.links(tree.nodes(this.draggingNode.parent));
+    this.svgGroup
+      .selectAll('path.link')
+      .filter(function (d, i) {
+        if (d.target.id == draggingNode.id) {
+          return true;
+        }
+        return false;
+      })
+      .remove();
+
+    this.dragStarted = null;
   }
 
-  sort() {}
+  endDrag() {
+    this.selectedNode = null;
+    d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
+    d3.select(this.domNode).attr('class', 'node');
+    // now restore the mouseover event or we won't be able to drag a 2nd time
+    d3.select(this.domNode).select('.ghostCircle').attr('pointer-events', '');
+    // TODO updateTempConnector();
+    if (this.draggingNode !== null) {
+      this.update(this.root);
+      this.centerNode(this.draggingNode);
+      this.draggingNode = null;
+    }
+  }
+
+  sort(tree) {
+    return tree.sort(function (a, b) {
+      return b.name.toLowerCase() < a.name.toLowerCase() ? 1 : -1;
+    });
+  }
 
   pan(domNode, direction) {
     // let speed = this.panSpeed;
@@ -373,10 +458,8 @@ export class AppComponent implements OnInit {
       .selectAll<SVGGElement, {}>('g.node')
       .data<CollapsibleHierarchyPointNode<Message>>(
         nodes,
-        (d: CollapsibleHierarchyPointNode<Message>) => {
-          // d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
-          return d.data.id || (d.data.id = this.i++);
-        }
+        (d: CollapsibleHierarchyPointNode<Message>) =>
+          d.data.id || (d.data.id = this.i++)
       )
       .join(
         (enter) =>
