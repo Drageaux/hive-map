@@ -294,6 +294,7 @@ export class AppComponent implements OnInit {
   }
 
   endDrag(d: CollapsibleHierarchyPointNode<Message>, g: SVGGElement) {
+    this.selectedNode = null;
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
     d3.select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
@@ -303,7 +304,6 @@ export class AppComponent implements OnInit {
       this.update(this.root);
       this.centerNode(d);
     }
-    this.selectedNode = null;
   }
 
   sort(tree) {
