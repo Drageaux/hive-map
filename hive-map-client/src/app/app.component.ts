@@ -272,9 +272,9 @@ export class AppComponent implements OnInit {
     d3.select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
-    this.updateTempConnector(d);
     this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
+    this.updateTempConnector(updatedNode);
     this.centerNode(updatedNode);
   }
 
@@ -494,7 +494,7 @@ export class AppComponent implements OnInit {
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
-      return d.data.id || (d.data.id = this.i++);
+      return d.data.id;
     });
     // Update the nodes…
     let node = this.svgGroup
@@ -510,9 +510,10 @@ export class AppComponent implements OnInit {
           enter
             .append('g')
             .attr('class', 'node')
-            .attr('transform', (d) => {
-              return 'translate(' + source.y + ',' + source.x + ')';
-            })
+            .attr(
+              'transform',
+              (d) => 'translate(' + source.y + ',' + source.x + ')'
+            )
             // rect enter
             .call((g) =>
               g
@@ -551,12 +552,6 @@ export class AppComponent implements OnInit {
                 .attr('opacity', 0.2) // change this to zero to hide the target area
                 .style('fill', 'red')
                 .attr('pointer-events', 'mouseover')
-                .on('mouseover', (event, d) => {
-                  this.overCircle(d);
-                })
-                .on('mouseout', (event, d) => {
-                  this.outCircle(d);
-                })
             ),
         // node update
         (update) =>
@@ -574,10 +569,11 @@ export class AppComponent implements OnInit {
               g
                 .transition()
                 .duration(this.duration)
-                .attr('transform', function (d) {
-                  // update if removing node
-                  return 'translate(' + d.parent.y + ',' + d.parent.x + ')';
-                })
+                // to update if removing node
+                .attr(
+                  'transform',
+                  (d) => 'translate(' + d.parent.y + ',' + d.parent.x + ')'
+                )
                 .remove()
             )
             .call((g) =>
@@ -601,12 +597,25 @@ export class AppComponent implements OnInit {
         return this.click(event, d);
       })
       .call(this.dragListener, this);
+
     // .on('dblclick', (event) => {
     //   event.preventDefault();
     //   console.log(event);
     // });
 
-    //
+    // All ghost circles will get its latest positions
+    node
+      .select('circle.ghostCircle')
+      .attr('r', 30)
+      .attr('opacity', 0.2) // change this to zero to hide the target area
+      .style('fill', 'red')
+      .attr('pointer-events', 'mouseover')
+      .on('mouseover', (event, d) => {
+        this.overCircle(d);
+      })
+      .on('mouseout', (event, d) => {
+        this.outCircle(d);
+      });
 
     // Change the circle fill depending on whether it has children and is collapsed
     // node
