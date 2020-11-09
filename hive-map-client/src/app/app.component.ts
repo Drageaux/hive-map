@@ -147,34 +147,36 @@ export class AppComponent implements OnInit {
       }
 
       if (this.selectedNode) {
-        // now remove the element from the parent
-        let index = d.parent.children.indexOf(d);
-        console.log("parent's children", d.parent.children);
-        console.log('index of node in parent list', index);
-        if (index > -1) {
-          d.parent.children.splice(index, 1);
-        }
-        // insert it into the new elements children
-        console.log('targetNode:', this.selectedNode);
+        // TODO: all in service
+        this.crudService.dragChild(d.parent, this.selectedNode, d);
 
-        if (
-          typeof this.selectedNode.children !== 'undefined' ||
-          typeof this.selectedNode._children !== 'undefined'
-        ) {
-          console.log('has children');
-          if (typeof this.selectedNode.children !== 'undefined') {
-            this.selectedNode.children.push(d);
-          } else {
-            this.selectedNode._children.push(d);
-          }
-        } else {
-          console.log('no children');
-          this.selectedNode.children = [];
-          this.selectedNode.children.push(d);
-          console.log('now with children', this.selectedNode);
-        }
+        // // now remove the element from the parent
+        // let index = d.parent.children.indexOf(d);
+        // console.log("parent's children", d.parent.children);
+        // console.log('index of node in parent list', index);
+        // if (index > -1) {
+        //   d.parent.children.splice(index, 1);
+        // }
+        // // insert it into the new elements children
+        // console.log('targetNode:', this.selectedNode);
+
+        // if (
+        //   typeof this.selectedNode.children !== 'undefined' ||
+        //   typeof this.selectedNode._children !== 'undefined'
+        // ) {
+        //   console.log('has children');
+        //   if (typeof this.selectedNode.children !== 'undefined') {
+        //     this.selectedNode.children.push(d);
+        //   } else {
+        //     this.selectedNode._children.push(d);
+        //   }
+        // } else {
+        //   console.log('no children');
+        //   this.selectedNode.children = [];
+        //   this.selectedNode.children.push(d);
+        //   console.log('now with children', this.selectedNode);
+        // }
         // Update data source
-
         d.parent = this.selectedNode;
 
         // Make sure that the node being added to is expanded so user can see added node is correctly moved

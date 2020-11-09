@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import exampleData from '../assets/mindmap-example.json';
+import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
 import { Message } from './messages/message';
 
 @Injectable({
@@ -14,23 +15,6 @@ export class CrudService {
 
   constructor() {
     // use the above functions to visit and establish maxLabelLength
-
-    let recurVisit = (parentMessage, visitFn, childrenFn) => {
-      if (!parentMessage) {
-        return;
-      }
-
-      visitFn(parentMessage);
-
-      let children = childrenFn(parentMessage);
-      if (children) {
-        let count = children.length;
-        for (var i = 0; i < count; i++) {
-          recurVisit(children[i], visitFn, childrenFn);
-        }
-      }
-    };
-
     let visit = (m: Message) => {
       console.log(this);
       this.totalNodes++;
@@ -39,14 +23,42 @@ export class CrudService {
         : this.maxLabelLength;
     };
 
-    let getNextChildren = (m: Message) => {
-      return m.children && m.children.length > 0 ? m.children : null;
-    };
-
     // use the above functions to visit and establish maxLabelLength
-    recurVisit(this.data, visit, getNextChildren);
+    this.recurVisit(this.data, visit);
   }
 
+  /*************************************************************************/
+  /***************************** TREE FUNCTIONS ****************************/
+  /*************************************************************************/
+  traverse(startNode) {
+    this.recurVisit(startNode, (m) => {});
+  }
+
+  recurVisit(parentMessage, visitFn) {
+    let childrenFn = this.getNextChildren;
+
+    if (!parentMessage) {
+      return;
+    }
+
+    visitFn(parentMessage);
+
+    let children = childrenFn(parentMessage);
+    if (children) {
+      let count = children.length;
+      for (let i = 0; i < count; i++) {
+        this.recurVisit(children[i], visitFn);
+      }
+    }
+  }
+
+  getNextChildren(m: Message) {
+    return m.children && m.children.length > 0 ? m.children : null;
+  }
+
+  /*************************************************************************/
+  /********************************** CRUD *********************************/
+  /*************************************************************************/
   generateUUID() {
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
@@ -60,5 +72,44 @@ export class CrudService {
     return uuid;
   }
 
-  dragChild(oldParent, targetParent, child) {}
+  dragChild(
+    oldParent: CollapsibleHierarchyPointNode<Message>,
+    targetParent: CollapsibleHierarchyPointNode<Message>,
+    d: CollapsibleHierarchyPointNode<Message>
+  ) {
+    let oldParentData = null;
+    this.recurVisit(this.data, (m) => {
+      if (m.id === oldParent.data.id) {
+        oldParentData = oldParent.data;
+        console.log(oldParentData);
+        return;
+      }
+    });
+    // now remove the element from the parent
+    let index = d.parent.children.indexOf(d);
+    console.log("parent's children", d.parent.children);
+    console.log('index of node in parent list', index);
+    if (index > -1) {
+      d.parent.children.splice(index, 1);
+    }
+    // insert it into the new elements children
+    console.log('targetNode:', targetParent);
+
+    if (
+      typeof targetParent.children !== 'undefined' ||
+      typeof targetParent._children !== 'undefined'
+    ) {
+      console.log('has children');
+      if (typeof targetParent.children !== 'undefined') {
+        targetParent.children.push(d);
+      } else {
+        targetParent._children.push(d);
+      }
+    } else {
+      console.log('no children');
+      targetParent.children = [];
+      targetParent.children.push(d);
+      console.log('now with children', targetParent);
+    }
+  }
 }
