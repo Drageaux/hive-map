@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
-import exampleData from '../assets/mindmap-example.json';
 import {
   select,
   HierarchyPointLink,
@@ -10,6 +9,7 @@ import {
   ValueFn,
 } from 'd3';
 import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
+import { CrudService } from './crud.service';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +20,6 @@ export class AppComponent implements OnInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // model
   currMessage = 'test';
-  data: Message = exampleData[2];
 
   // d3 set up
   d3tree = d3.tree<Message>().size([1000, 1000]);
@@ -28,17 +27,12 @@ export class AppComponent implements OnInit {
     .linkHorizontal()
     .x((d) => d[1])
     .y((d) => d[0]); // node paths
-  root: CollapsibleHierarchyPointNode<Message> = this.d3tree(
-    d3.hierarchy(this.data)
-  );
+  root: CollapsibleHierarchyPointNode<Message>;
   // svg-related objects
   svg: d3.Selection<SVGSVGElement, {}, HTMLElement, any>;
   // append a group which holds all nodes and which the zoom Listener can act upon.
   svgGroup: d3.Selection<SVGGElement, {}, HTMLElement, any>;
 
-  // calculate total nodes, max label length
-  totalNodes = 0;
-  maxLabelLength = 0;
   // zoom
   zoomListener;
   // drag
@@ -56,8 +50,11 @@ export class AppComponent implements OnInit {
   i = 0;
   duration = 750;
 
+  constructor(private crudService: CrudService) {
+    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
+  }
+
   ngOnInit() {
-    console.log(exampleData);
     // size of the diagram
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
@@ -68,35 +65,6 @@ export class AppComponent implements OnInit {
       .attr('class', 'overlay');
 
     this.svgGroup = this.svg.append('g');
-
-    let recurVisit = (parentMessage, visitFn, childrenFn) => {
-      if (!parentMessage) {
-        return;
-      }
-
-      visitFn(parentMessage);
-
-      let children = childrenFn(parentMessage);
-      if (children) {
-        let count = children.length;
-        for (var i = 0; i < count; i++) {
-          recurVisit(children[i], visitFn, childrenFn);
-        }
-      }
-    };
-
-    let visit = (m: Message) => {
-      this.totalNodes++;
-      this.maxLabelLength = m.text
-        ? Math.max(m.text.length, this.maxLabelLength)
-        : this.maxLabelLength;
-    };
-    let getNextChildren = (m: Message) => {
-      return m.children && m.children.length > 0 ? m.children : null;
-    };
-
-    // use the above functions to visit and establish maxLabelLength
-    recurVisit(this.data, visit, getNextChildren);
 
     // this.sort();
 
@@ -506,7 +474,7 @@ export class AppComponent implements OnInit {
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
-      d.y = d.depth * (this.maxLabelLength * 10); //maxLabelLength * 10px
+      d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
