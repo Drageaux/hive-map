@@ -16,7 +16,6 @@ export class CrudService {
   constructor() {
     // use the above functions to visit and establish maxLabelLength
     let visit = (m: Message) => {
-      console.log(this);
       this.totalNodes++;
       this.maxLabelLength = m.text
         ? Math.max(m.text.length, this.maxLabelLength)
@@ -103,14 +102,13 @@ export class CrudService {
 
     // search index by ID
     let index = oldParentData.children.map((e) => e.id).indexOf(nodeData.id);
-    console.log(index);
 
     // now remove the element from the parent
     // console.log("parent's children", d.parent.children);
     // console.log('index of node in parent list', index);
     if (index > -1) {
       oldParentData.children.splice(index, 1);
-      console.log(oldParentData.children);
+      // console.log(oldParentData.children);
     }
     // insert it into the new elements children
     // console.log('targetNode:', targetParent);

@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
   // drag
   dragListener;
   // variables for drag/drop
-  selectedNode = null;
+  targetNode = null;
   dragStarted = false;
   relCoords;
 
@@ -151,9 +151,9 @@ export class AppComponent implements OnInit {
         return;
       }
 
-      if (this.selectedNode) {
+      if (this.targetNode) {
         // TODO: all in service
-        this.crudService.dragChild(d.parent, this.selectedNode, d);
+        this.crudService.dragChild(d.parent, this.targetNode, d);
 
         // // now remove the element from the parent
         // let index = d.parent.children.indexOf(d);
@@ -182,10 +182,9 @@ export class AppComponent implements OnInit {
         //   console.log('now with children', this.selectedNode);
         // }
         // Update data source
-        d.parent = this.selectedNode;
 
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
-        this.expand(this.selectedNode);
+        this.expand(this.targetNode);
         this.sort();
         this.endDrag(d, g);
       } else {
@@ -268,16 +267,15 @@ export class AppComponent implements OnInit {
   }
 
   endDrag(d: CollapsibleHierarchyPointNode<Message>, g: SVGGElement) {
-    this.selectedNode = null;
+    this.targetNode = null;
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
     d3.select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.updateTempConnector(d);
-    if (d !== null) {
-      this.update(this.root);
-      this.centerNode(d);
-    }
+    this.update(this.root);
+    let updatedNode = this.root.find((e) => e.data.id === d.data.id);
+    this.centerNode(updatedNode);
   }
 
   sort() {
@@ -394,30 +392,34 @@ export class AppComponent implements OnInit {
     this.centerNode(d);
   }
 
-  overCircle(d: CollapsibleHierarchyPointNode<Message>) {
-    this.selectedNode = d;
-    this.updateTempConnector(d);
+  overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
+    this.targetNode = targetNode;
+    // this.updateTempConnector(targetNode);
   }
-  outCircle(d: CollapsibleHierarchyPointNode<Message>) {
-    this.selectedNode = null;
-    this.updateTempConnector(d);
+  outCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
+    this.targetNode = null;
+    // this.updateTempConnector(targetNode);
   }
 
   // Function to update the temporary connector indicating dragging affiliation
   updateTempConnector(d: CollapsibleHierarchyPointNode<Message>) {
     var data = [];
-    if (d !== null && this.selectedNode !== null) {
+    if (d !== null && this.targetNode !== null) {
       // have to flip the source coordinates since we did this for the existing connectors on the original tree
       data = [
         {
           source: d,
-          target: this.selectedNode,
+          target: this.targetNode,
         },
       ];
     }
     let tempLink = this.svgGroup
       .selectAll<SVGPathElement, {}>('path.templink')
       .data(data, (d: HierarchyPointLink<Message>) => {
+        console.log(
+          (({ x, y, data: { name } }) => ({ x, y, data: { name } }))(d.source),
+          (({ x, y, data: { name } }) => ({ x, y, data: { name } }))(d.target)
+        );
         return d.target.data.id;
       });
 
@@ -437,6 +439,8 @@ export class AppComponent implements OnInit {
       .attr('pointer-events', 'none');
 
     tempLink.attr('d', (d: HierarchyPointLink<Message>) => {
+      console.log(d.source as CollapsibleHierarchyPointNode<Message>);
+      console.log(d.target as CollapsibleHierarchyPointNode<Message>);
       return this.diagonal({
         source: [
           (d.source as CollapsibleHierarchyPointNode<Message>).x0,
@@ -476,8 +480,8 @@ export class AppComponent implements OnInit {
 
     // Compute the new tree layout.
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
-    this.root.x0 = window.innerHeight / 2;
-    this.root.y0 = 0;
+    // this.root.x0 = window.innerHeight / 2;
+    // this.root.y0 = 0;
     const nodes: CollapsibleHierarchyPointNode<
       Message
     >[] = this.root.descendants();
@@ -593,7 +597,7 @@ export class AppComponent implements OnInit {
             )
       )
       .on('click', (event, d) => {
-        console.log(event);
+        console.log(d);
         return this.click(event, d);
       })
       .call(this.dragListener, this);
