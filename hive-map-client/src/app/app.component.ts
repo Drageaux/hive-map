@@ -447,6 +447,7 @@ export class AppComponent implements OnInit {
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
   update(source: CollapsibleHierarchyPointNode<Message>) {
+    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.

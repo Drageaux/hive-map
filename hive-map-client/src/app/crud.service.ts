@@ -114,22 +114,27 @@ export class CrudService {
     }
     // insert it into the new elements children
     // console.log('targetNode:', targetParent);
-
-    if (
-      typeof targetParent.children !== 'undefined' ||
-      typeof targetParent._children !== 'undefined'
-    ) {
-      // console.log('has children');
-      if (typeof targetParent.children !== 'undefined') {
-        targetParent.children.push(d);
-      } else {
-        targetParent._children.push(d);
-      }
+    if (!newParentData.children || newParentData.children.length === 0) {
+      newParentData.children = [nodeData];
     } else {
-      // console.log('no children');
-      targetParent.children = [];
-      targetParent.children.push(d);
-      // console.log('now with children', targetParent);
+      newParentData.children.push(nodeData);
     }
+
+    // if (
+    //   typeof targetParent.children !== 'undefined' ||
+    //   typeof targetParent._children !== 'undefined'
+    // ) {
+    //   // console.log('has children');
+    //   if (typeof targetParent.children !== 'undefined') {
+    //     targetParent.children.push(d);
+    //   } else {
+    //     targetParent._children.push(d);
+    //   }
+    // } else {
+    //   // console.log('no children');
+    //   targetParent.children = [];
+    //   targetParent.children.push(d);
+    //   // console.log('now with children', targetParent);
+    // }
   }
 }
