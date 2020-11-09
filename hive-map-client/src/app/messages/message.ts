@@ -3,5 +3,6 @@ export class Message {
   text: string;
   children?: Message[];
   name: string;
-  picture?: string
+  picture?: string;
+  timestamp?: string;
 }

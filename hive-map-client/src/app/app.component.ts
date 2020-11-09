@@ -66,8 +66,6 @@ export class AppComponent implements OnInit {
 
     this.svgGroup = this.svg.append('g');
 
-    // this.sort();
-
     // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     this.zoomListener = d3
       .zoom()
@@ -185,7 +183,6 @@ export class AppComponent implements OnInit {
 
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
         this.expand(this.targetNode);
-        this.sort();
         this.endDrag(d, g);
       } else {
         this.endDrag(d, g);
@@ -279,8 +276,10 @@ export class AppComponent implements OnInit {
   }
 
   sort() {
-    this.root.sort(function (a, b) {
-      return b.data.text.toLowerCase() < a.data.text.toLowerCase() ? 1 : -1;
+    this.root = this.root.sort(function (a, b) {
+      return Date.parse(b.data.timestamp) < Date.parse(a.data.timestamp)
+        ? -1
+        : 1;
     });
   }
 
@@ -480,6 +479,8 @@ export class AppComponent implements OnInit {
 
     // Compute the new tree layout.
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
+    this.sort();
+    console.log(this.root);
     // this.root.x0 = window.innerHeight / 2;
     // this.root.y0 = 0;
     const nodes: CollapsibleHierarchyPointNode<
@@ -541,7 +542,7 @@ export class AppComponent implements OnInit {
               g
                 .append('text')
                 .append('textPath')
-                .text((d) => d.data.text)
+                .text((d) => d.data.timestamp)
             )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
@@ -650,7 +651,7 @@ export class AppComponent implements OnInit {
       // })
       .attr('fill', 'white')
       .text((d) => {
-        return d.data.text;
+        return d.data.timestamp;
       })
       // Fade the text in
       .transition()
