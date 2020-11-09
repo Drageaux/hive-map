@@ -97,6 +97,10 @@ export class AppComponent implements OnInit {
       >,
       d: CollapsibleHierarchyPointNode<Message>
     ): void => {
+      console.log(event);
+      // if (Math.abs(event.dx) < 5 || Math.abs(event.dy)) {
+      //   return;
+      // }
       if (d === this.root) {
         // TODO: move root
         return;
@@ -271,7 +275,6 @@ export class AppComponent implements OnInit {
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.updateTempConnector(d);
     if (d !== null) {
-      console.log(d);
       this.update(this.root);
       this.centerNode(d);
     }
@@ -353,12 +356,14 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
-  collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(this.collapse);
-      d.children = null;
-    }
+  collapse(d: CollapsibleHierarchyPointNode<Message>) {
+    d.isCollapsed = true;
+    // if (d.children) {
+    //   d.collapsed
+    //   d._children = d.children;
+    //   d._children.forEach(this.collapse);
+    //   d.children = null;
+    // }
   }
 
   expand(d: CollapsibleHierarchyPointNode<Message>) {
@@ -370,13 +375,14 @@ export class AppComponent implements OnInit {
   }
 
   toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else if (d._children) {
-      d.children = d._children;
-      d._children = null;
-    }
+    // if (d.children) {
+    //   d._children = d.children;
+    //   d.children = null;
+    // } else if (d._children) {
+    //   d.children = d._children;
+    //   d._children = null;
+    // }
+    d.isCollapsed = !d.isCollapsed;
     return d;
   }
 
@@ -470,6 +476,8 @@ export class AppComponent implements OnInit {
 
     // Compute the new tree layout.
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
+    this.root.x0 = window.innerHeight / 2;
+    this.root.y0 = 0;
     const nodes: CollapsibleHierarchyPointNode<
       Message
     >[] = this.root.descendants();
@@ -478,6 +486,7 @@ export class AppComponent implements OnInit {
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
+      d.isCollapsed = false;
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
@@ -498,13 +507,7 @@ export class AppComponent implements OnInit {
             .append('g')
             .attr('class', 'node')
             .attr('transform', (d) => {
-              return (
-                'translate(' +
-                (source.y0 || source.y) +
-                ',' +
-                (source.x0 || source.x) +
-                ')'
-              );
+              return 'translate(' + source.y + ',' + source.x + ')';
             })
             // rect enter
             .call((g) =>
@@ -568,7 +571,8 @@ export class AppComponent implements OnInit {
                 .transition()
                 .duration(this.duration)
                 .attr('transform', function (d) {
-                  return 'translate(' + source.y + ',' + source.x + ')';
+                  // update if removing node
+                  return 'translate(' + d.parent.y + ',' + d.parent.x + ')';
                 })
                 .remove()
             )
@@ -589,6 +593,7 @@ export class AppComponent implements OnInit {
             )
       )
       .on('click', (event, d) => {
+        console.log(event);
         return this.click(event, d);
       })
       .call(this.dragListener, this);

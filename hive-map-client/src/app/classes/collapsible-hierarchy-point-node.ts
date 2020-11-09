@@ -5,4 +5,5 @@ export type CollapsibleHierarchyPointNode<G> = HierarchyPointNode<G> & {
   _children?;
   x0?;
   y0?;
+  isCollapsed?;
 };
