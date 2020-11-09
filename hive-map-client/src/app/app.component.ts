@@ -80,9 +80,9 @@ export class AppComponent implements OnInit {
     // Define the dragListener for drag/drop behaviour of nodes.
     this.defineDragListener();
 
+    // Initiate root
     this.root.x0 = viewerHeight / 2;
     this.root.y0 = 0;
-
     this.update(this.root);
     this.centerNode(this.root);
   }
@@ -447,7 +447,6 @@ export class AppComponent implements OnInit {
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
   update(source: CollapsibleHierarchyPointNode<Message>) {
-    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -462,7 +461,7 @@ export class AppComponent implements OnInit {
         });
       }
     };
-    childCount(0, this.root);
+    childCount(0, this.crudService.data);
     let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
     this.d3tree = this.d3tree
       .size([newHeight, window.innerWidth])
@@ -470,11 +469,11 @@ export class AppComponent implements OnInit {
       .separation((a, b) => (a.parent == b.parent ? 1 : 1.25));
 
     // Compute the new tree layout.
-    const treeRoot = this.d3tree(this.root);
+    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
     const nodes: CollapsibleHierarchyPointNode<
       Message
-    >[] = treeRoot.descendants();
-    const links = treeRoot.links();
+    >[] = this.root.descendants();
+    const links = this.root.links();
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
