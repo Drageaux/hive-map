@@ -102,6 +102,7 @@ export class AppComponent implements OnInit {
         return;
       }
       this.dragStarted = true;
+      console.log(d);
       // let nodes = tree.nodes(d);
       // NOTE: important, suppress the mouseover event on the node being dragged.
       // Otherwise it will absorb the mouseover event and the underlying node will not detect it
