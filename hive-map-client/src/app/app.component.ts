@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // model
   currMessage = 'test';
-  data: Message = exampleData;
+  data: Message = exampleData[2];
 
   // d3 set up
   d3tree = d3.tree<Message>().size([1000, 1000]);
@@ -57,6 +57,7 @@ export class AppComponent implements OnInit {
   duration = 750;
 
   ngOnInit() {
+    console.log(exampleData);
     // size of the diagram
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
@@ -557,7 +558,12 @@ export class AppComponent implements OnInit {
                 })
             )
             // text enter
-            .call((g) => g.append('text'))
+            .call((g) =>
+              g
+                .append('text')
+                .append('textPath')
+                .text((d) => d.data.text)
+            )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
               g
