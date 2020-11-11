@@ -1,5 +1,18 @@
+<div id="action-menu" class="fixed-top" style="z-index: 10000">
+  <button
+    class="btn btn-{{ mode === 'chat' ? '' : 'outline-' }}success mr-2"
+    (click)="mode = 'chat'"
+  >
+    Chat Mode
+  </button>
+  <button
+    class="btn btn-{{ mode === 'drag' ? '' : 'outline-' }}success"
+    (click)="mode = 'drag'"
+  >
+    Drag Mode
+  </button>
+</div>
 <svg id="hive-map"></svg>
-
 <app-cursor></app-cursor>
 <app-message-input></app-message-input>
 

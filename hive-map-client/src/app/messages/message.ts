@@ -1,5 +1,5 @@
 export class Message {
-  id?: string | number;
+  id?: string;
   text: string;
   children?: Message[];
   name: string;

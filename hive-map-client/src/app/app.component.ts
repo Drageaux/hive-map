@@ -20,6 +20,10 @@ export class AppComponent implements OnInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // model
   currMessage = 'test';
+  mode: 'chat' | 'drag' = 'chat';
+
+  // collapsed nodes
+  collapsedNodes = new Map<string, boolean>();
 
   // d3 set up
   d3tree = d3.tree<Message>().size([1000, 1000]);
@@ -41,13 +45,11 @@ export class AppComponent implements OnInit {
   targetNode = null;
   dragStarted = false;
   relCoords;
-
   // panning variables
   panSpeed = 200;
   panBoundary = 20; // Within 20px from edges will pan when dragging.
   panTimer;
   // misc. variables
-  i = 0;
   duration = 750;
 
   constructor(private crudService: CrudService) {
@@ -95,20 +97,15 @@ export class AppComponent implements OnInit {
       >,
       d: CollapsibleHierarchyPointNode<Message>
     ): void => {
-      console.log(event);
-      // if (Math.abs(event.dx) < 5 || Math.abs(event.dy)) {
-      //   return;
-      // }
-      if (d === this.root) {
+      if (d === this.root || this.mode !== 'drag') {
         // TODO: move root
         return;
       }
       this.dragStarted = true;
-      console.log(d);
       // let nodes = tree.nodes(d);
       // NOTE: important, suppress the mouseover event on the node being dragged.
       // Otherwise it will absorb the mouseover event and the underlying node will not detect it
-      event.sourceEvent.stopPropagation();
+      // event.sourceEvent.stopPropagation();
     };
     let onDrag = (
       g: SVGGElement,
@@ -119,7 +116,7 @@ export class AppComponent implements OnInit {
       >,
       d: CollapsibleHierarchyPointNode<Message>
     ) => {
-      if (d === this.root) {
+      if (d === this.root || this.mode !== 'drag') {
         // TODO: move root
         return;
       }
@@ -355,6 +352,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   collapse(d: CollapsibleHierarchyPointNode<Message>) {
     d.isCollapsed = true;
+    this.update(d);
     // if (d.children) {
     //   d.collapsed
     //   d._children = d.children;
@@ -372,19 +370,26 @@ export class AppComponent implements OnInit {
   }
 
   toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
-    // if (d.children) {
-    //   d._children = d.children;
-    //   d.children = null;
-    // } else if (d._children) {
-    //   d.children = d._children;
-    //   d._children = null;
-    // }
+    if (d.children) {
+      d._children = d.children;
+      d.children = null;
+    } else if (d._children) {
+      d.children = d._children;
+      d._children = null;
+    }
     d.isCollapsed = !d.isCollapsed;
+    if (this.collapsedNodes.get(d.data.id) === true) {
+      this.collapsedNodes.set(d.data.id, false);
+    } else {
+      this.collapsedNodes.set(d.data.id, true);
+    }
+    console.log(this.collapsedNodes.entries());
     return d;
   }
 
   // Toggle children on click.
   click(event, d) {
+    console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
@@ -480,7 +485,6 @@ export class AppComponent implements OnInit {
     // Compute the new tree layout.
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
     this.sort();
-    console.log(this.root);
     // this.root.x0 = window.innerHeight / 2;
     // this.root.y0 = 0;
     const nodes: CollapsibleHierarchyPointNode<
@@ -491,7 +495,10 @@ export class AppComponent implements OnInit {
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
-      d.isCollapsed = false;
+      if (this.collapsedNodes.get(d.data.id) === true) {
+        d.children = [];
+        d.data.children = [];
+      }
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
@@ -502,8 +509,7 @@ export class AppComponent implements OnInit {
       .selectAll<SVGGElement, {}>('g.node')
       .data<CollapsibleHierarchyPointNode<Message>>(
         nodes,
-        (d: CollapsibleHierarchyPointNode<Message>) =>
-          d.data.id || (d.data.id = this.i++)
+        (d: CollapsibleHierarchyPointNode<Message>) => d.data.id
       )
       .join(
         (enter) =>
@@ -542,16 +548,13 @@ export class AppComponent implements OnInit {
               g
                 .append('text')
                 .append('textPath')
-                .text((d) => d.data.timestamp)
+                .text((d) => d.data.text)
             )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
               g
                 .append('circle')
                 .attr('class', 'ghostCircle')
-                .attr('r', 30)
-                .attr('opacity', 0.2) // change this to zero to hide the target area
-                .style('fill', 'red')
                 .attr('pointer-events', 'mouseover')
             ),
         // node update
@@ -593,8 +596,8 @@ export class AppComponent implements OnInit {
                 .style('fill-opacity', 0)
             )
       )
+
       .on('click', (event, d) => {
-        console.log(d);
         return this.click(event, d);
       })
       .call(this.dragListener, this);
@@ -607,6 +610,7 @@ export class AppComponent implements OnInit {
     // All ghost circles will get its latest positions
     node
       .select('circle.ghostCircle')
+      .attr('x', 200)
       .attr('r', 30)
       .attr('opacity', 0.2) // change this to zero to hide the target area
       .style('fill', 'red')
@@ -650,9 +654,7 @@ export class AppComponent implements OnInit {
       //   // return d.children || d._children ? 'end' : 'start';
       // })
       .attr('fill', 'white')
-      .text((d) => {
-        return d.data.timestamp;
-      })
+      .text((d) => d.data.text)
       // Fade the text in
       .transition()
       .duration(this.duration)
