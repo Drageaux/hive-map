@@ -5,4 +5,5 @@ export class Message {
   name: string;
   picture?: string;
   timestamp?: string;
+  _children?: Message[];
 }

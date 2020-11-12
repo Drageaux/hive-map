@@ -268,6 +268,7 @@ export class AppComponent implements OnInit {
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
+    console.log(d);
     this.updateTempConnector(updatedNode);
     this.centerNode(updatedNode);
   }
@@ -351,39 +352,32 @@ export class AppComponent implements OnInit {
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
   collapse(d: CollapsibleHierarchyPointNode<Message>) {
-    d.isCollapsed = true;
     this.update(d);
-    // if (d.children) {
-    //   d.collapsed
-    //   d._children = d.children;
-    //   d._children.forEach(this.collapse);
-    //   d.children = null;
-    // }
+    if (d.data.children) {
+      d.data._children = d.data.children;
+      // TODO: bug check
+      d.children.forEach(this.collapse);
+      d.data.children = null;
+    }
   }
 
   expand(d: CollapsibleHierarchyPointNode<Message>) {
-    if (d._children) {
-      d.children = d._children;
+    if (d.data._children) {
+      d.data.children = d.data._children;
+      // TODO: bug check
       d.children.forEach(this.expand);
-      d._children = null;
+      d.data._children = null;
     }
   }
 
   toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else if (d._children) {
-      d.children = d._children;
-      d._children = null;
+    if (d.data.children) {
+      d.data._children = d.data.children;
+      d.data.children = null;
+    } else if (d.data._children) {
+      d.data.children = d.data._children;
+      d.data._children = null;
     }
-    d.isCollapsed = !d.isCollapsed;
-    if (this.collapsedNodes.get(d.data.id) === true) {
-      this.collapsedNodes.set(d.data.id, false);
-    } else {
-      this.collapsedNodes.set(d.data.id, true);
-    }
-    console.log(this.collapsedNodes.entries());
     return d;
   }
 
@@ -598,6 +592,7 @@ export class AppComponent implements OnInit {
       )
 
       .on('click', (event, d) => {
+        console.log(d.ancestors());
         return this.click(event, d);
       })
       .call(this.dragListener, this);
