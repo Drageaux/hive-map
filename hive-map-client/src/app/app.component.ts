@@ -328,6 +328,7 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: CollapsibleHierarchyPointNode<Message>) {
+    console.log(source);
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -489,10 +490,6 @@ export class AppComponent implements OnInit {
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
-      if (this.collapsedNodes.get(d.data.id) === true) {
-        d.children = [];
-        d.data.children = [];
-      }
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
