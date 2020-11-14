@@ -360,11 +360,9 @@ export class AppComponent implements AfterViewInit {
 
   overCircle(targetNode: MessageNode) {
     this.targetNode = targetNode;
-    // this.updateTempConnector(targetNode);
   }
   outCircle() {
     this.targetNode = null;
-    // this.updateTempConnector(targetNode);
   }
 
   // Function to update the temporary connector indicating dragging affiliation
