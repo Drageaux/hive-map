@@ -303,13 +303,6 @@ export class AppComponent implements AfterViewInit {
     // }
   }
 
-  // zoom() {
-  //   this.svgGroup.attr(
-  //     'transform',
-  //     'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')'
-  //   );
-  // }
-
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: MessageNode) {
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
@@ -369,6 +362,7 @@ export class AppComponent implements AfterViewInit {
   click(event, d: MessageNode) {
     console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
+    // TODO: differentiate click to chat versus collapse
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
@@ -713,7 +707,6 @@ export class AppComponent implements AfterViewInit {
 
   selectNode(d: MessageNode) {
     // select for chat
-    if (this.mode !== 'chat') return;
     this.selectedNode = d;
     let nodeSelection = select<SVGGElement, MessageNode>(`[id="${d.data.id}"`);
 
