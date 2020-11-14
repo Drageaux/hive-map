@@ -14,7 +14,15 @@
 </div>
 <svg id="hive-map"></svg>
 <!-- <app-cursor></app-cursor> -->
-<input id="input" name="text" [(ngModel)]="currMessage" #input />
+<form (ngSubmit)="onChatSubmit()" #inputForm>
+  <input
+    class="form-control form-control-lg"
+    id="input"
+    name="text"
+    [(ngModel)]="currMessage"
+    #input
+  />
+</form>
 <!-- <app-message-input></app-message-input> -->
 
 <router-outlet></router-outlet>

@@ -25,12 +25,7 @@ export class AppComponent implements OnInit {
 
   // input
   @ViewChild('input') inputEl: ElementRef;
-  selectedNode: d3.Selection<
-    SVGGElement,
-    CollapsibleHierarchyPointNode<Message>,
-    HTMLElement,
-    any
-  >;
+  selectedNode: CollapsibleHierarchyPointNode<Message>;
 
   // collapsed nodes
   collapsedNodes = new Map<string, boolean>();
@@ -400,23 +395,24 @@ export class AppComponent implements OnInit {
     this.update(d);
     this.centerNode(d);
 
-    if (!(d.data.children || d.data._children)) {
-      this.selectedNode = select<
-        SVGGElement,
-        CollapsibleHierarchyPointNode<Message>
-      >(`[id="${d.data.id}"`);
-      let nodes = selectAll<
-        SVGGElement,
-        CollapsibleHierarchyPointNode<Message>
-      >(`g.node`).filter((e) => e.data.id !== d.data.id);
-      nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
+    // select for chat
+    if (this.mode !== 'chat') return;
+    this.selectedNode = d;
+    let nodeSelection = select<
+      SVGGElement,
+      CollapsibleHierarchyPointNode<Message>
+    >(`[id="${d.data.id}"`);
 
-      this.selectedNode
-        .select('rect')
-        .attr('stroke-width', '4px')
-        .attr('stroke', 'yellow');
-      this.inputEl.nativeElement.focus();
-    }
+    let nodes = selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>(
+      `g.node`
+    ).filter((e) => e.data.id !== d.data.id);
+    nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
+
+    nodeSelection
+      .select('rect')
+      .attr('stroke-width', '4px')
+      .attr('stroke', 'yellow');
+    this.inputEl.nativeElement.focus();
   }
 
   overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
@@ -738,5 +734,24 @@ export class AppComponent implements OnInit {
       d.x0 = d.x;
       d.y0 = d.y;
     });
+  }
+
+  /*************************************************************************/
+  /********************************* FORMS *********************************/
+  /*************************************************************************/
+  onChatSubmit() {
+    let newMessage: Message = this.crudService.addChild(
+      this.selectedNode,
+      this.currMessage
+    );
+    // update view
+    this.update(this.root);
+    let newNode =
+      this.root.find((d) => d.data.id === newMessage.id) || this.selectedNode;
+    this.expand(newNode);
+    this.centerNode(newNode);
+    // reset model
+    this.currMessage = '';
+    this.selectedNode = null;
   }
 }

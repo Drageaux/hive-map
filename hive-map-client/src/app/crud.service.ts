@@ -33,7 +33,7 @@ export class CrudService {
     this.recurVisit(startNode, (m) => {});
   }
 
-  recurVisit(parentMessage, visitFn) {
+  recurVisit(parentMessage: Message, visitFn) {
     let childrenFn = this.getNextChildren;
 
     if (!parentMessage) {
@@ -69,6 +69,28 @@ export class CrudService {
       }
     );
     return uuid;
+  }
+
+  addChild(node: CollapsibleHierarchyPointNode<Message>, text: string) {
+    if (!node) return null;
+    const message: Message = {
+      id: this.generateUUID(),
+      name: 'Current User',
+      text,
+      timestamp: new Date().toISOString(),
+    };
+
+    let result = null;
+
+    this.recurVisit(this.data, (m: Message) => {
+      if (m.id === node.data.id) {
+        m.children && !m._children ? m.children.push(message) : null;
+        m._children && !m.children ? m._children.push(message) : null;
+        !m._children && !m.children ? (m.children = [message]) : null;
+      }
+    });
+
+    return message;
   }
 
   dragChild(
