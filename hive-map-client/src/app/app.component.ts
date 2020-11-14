@@ -466,10 +466,24 @@ export class AppComponent implements OnInit {
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
+      d.count();
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
       // d.y = d.depth * 500; //500px per level.
+
+      // use value as popularity
+      d.popularity = d.value;
+      // if collapsed, recreate the collapsed hierarchy to count its node
+      if (d.data._children) {
+        let tempData = d.data;
+        tempData.children = tempData._children;
+        let newHierarchy = d3.hierarchy(tempData);
+        newHierarchy.count();
+        console.log(newHierarchy);
+        d.popularity = newHierarchy.value;
+      }
+
       return d.data.id;
     });
     // Update the nodes…
@@ -498,16 +512,16 @@ export class AppComponent implements OnInit {
                 .style('fill-opacity', 0)
                 .style('rx', 15)
             )
-            // circle enter
-            .call((g) =>
-              g
-                .append('circle')
-                .attr('class', 'nodeCircle')
-                .attr('r', 0)
-                .style('fill', (d: MessageNode) => {
-                  return d._children ? 'lightsteelblue' : '#fff';
-                })
-            )
+            // // circle enter
+            // .call((g) =>
+            //   g
+            //     .append('circle')
+            //     .attr('class', 'nodeCircle')
+            //     .attr('r', 0)
+            //     .style('fill', (d: MessageNode) => {
+            //       return d._children ? 'lightsteelblue' : '#fff';
+            //     })
+            // )
             // text enter
             .call(
               (g) => g.append('text')
@@ -601,10 +615,18 @@ export class AppComponent implements OnInit {
       });
 
     node.select('rect').style('fill-opacity', 1);
+    // Style different nodes
+    // root node is blue
     let root = node
       .filter((d) => d.depth === 0)
       .select('rect')
       .attr('fill', '#5691f0');
+    // popular node(s) is/are yellow
+    let popularityRating = 0;
+    this.root.descendants().forEach((d) => {
+      // console.log(d.value, d.data.name);
+    });
+    // let popularNodes = node.filter(d => d.)
 
     // Update the text to reflect whether node has children or not.
     node
