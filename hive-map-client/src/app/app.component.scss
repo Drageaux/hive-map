@@ -1,3 +1,16 @@
 #canvas {
   border: 1px solid black;
 }
+
+input {
+  width: 80%;
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem;
+}
+
+svg#hive-map g.node rect {
+  fill: "red" !important;
+}

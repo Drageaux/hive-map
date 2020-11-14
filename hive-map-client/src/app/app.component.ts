@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import {
@@ -7,6 +7,7 @@ import {
   D3DragEvent,
   HierarchyPointNode,
   ValueFn,
+  selectAll,
 } from 'd3';
 import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
 import { CrudService } from './crud.service';
@@ -21,6 +22,10 @@ export class AppComponent implements OnInit {
   // model
   currMessage = 'test';
   mode: 'chat' | 'drag' = 'chat';
+
+  // input
+  @ViewChild('input') inputEl: ElementRef;
+  selectedNode: CollapsibleHierarchyPointNode<Message>;
 
   // collapsed nodes
   collapsedNodes = new Map<string, boolean>();
@@ -268,7 +273,6 @@ export class AppComponent implements OnInit {
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
-    console.log(d);
     this.updateTempConnector(updatedNode);
     this.centerNode(updatedNode);
   }
@@ -328,7 +332,6 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: CollapsibleHierarchyPointNode<Message>) {
-    console.log(source);
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -353,7 +356,6 @@ export class AppComponent implements OnInit {
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
   collapse(d: CollapsibleHierarchyPointNode<Message>) {
-    this.update(d);
     if (d.data.children) {
       d.data._children = d.data.children;
       // TODO: bug check
@@ -363,6 +365,7 @@ export class AppComponent implements OnInit {
   }
 
   expand(d: CollapsibleHierarchyPointNode<Message>) {
+    console.log(d);
     if (d.data._children) {
       d.data.children = d.data._children;
       // TODO: bug check
@@ -383,12 +386,14 @@ export class AppComponent implements OnInit {
   }
 
   // Toggle children on click.
-  click(event, d) {
-    console.log(event, d);
+  click(event, d: CollapsibleHierarchyPointNode<Message>) {
+    // console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
+
+    this.selectNode(d);
   }
 
   overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
@@ -512,6 +517,7 @@ export class AppComponent implements OnInit {
               'transform',
               (d) => 'translate(' + source.y + ',' + source.x + ')'
             )
+            .attr('id', (d) => d.data.id)
             // rect enter
             .call((g) =>
               g
@@ -521,7 +527,6 @@ export class AppComponent implements OnInit {
                 .attr('width', 200)
                 .attr('height', 40)
                 .style('fill-opacity', 0)
-                .style('fill', '#5396ff')
                 .style('rx', 15)
             )
             // circle enter
@@ -535,11 +540,10 @@ export class AppComponent implements OnInit {
                 })
             )
             // text enter
-            .call((g) =>
-              g
-                .append('text')
-                .append('textPath')
-                .text((d) => d.data.text)
+            .call(
+              (g) => g.append('text')
+              // .append('textPath')
+              // .text((d) => d.data.text)
             )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
@@ -587,12 +591,8 @@ export class AppComponent implements OnInit {
                 .style('fill-opacity', 0)
             )
       )
-
-      .on('click', (event, d) => {
-        console.log(d.ancestors());
-        return this.click(event, d);
-      })
-      .call(this.dragListener, this);
+      .on('click', (event, d) => this.click(event, d))
+      .call(this.dragListener);
 
     // .on('dblclick', (event) => {
     //   event.preventDefault();
@@ -632,13 +632,18 @@ export class AppComponent implements OnInit {
       });
 
     node.select('rect').style('fill-opacity', 1);
+    let root = node
+      .filter((d) => d.depth === 0)
+      .select('rect')
+      .attr('fill', '#5691f0');
 
     // Update the text to reflect whether node has children or not.
     node
       .select('text')
+      .style('font-family', 'Public Sans, sans-serif')
       .attr('x', (d) => {
         // return d.children || d._children ? -10 : 10;
-        return 50;
+        return '0.5rem';
       })
       .attr('dy', '.35em')
       .attr('class', 'nodeText')
@@ -709,5 +714,50 @@ export class AppComponent implements OnInit {
       d.x0 = d.x;
       d.y0 = d.y;
     });
+  }
+
+  selectNode(d: CollapsibleHierarchyPointNode<Message>) {
+    // select for chat
+    if (this.mode !== 'chat') return;
+    this.selectedNode = d;
+    let nodeSelection = select<
+      SVGGElement,
+      CollapsibleHierarchyPointNode<Message>
+    >(`[id="${d.data.id}"`);
+
+    let nodes = selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>(
+      `g.node`
+    ).filter((e) => e.data.id !== d.data.id);
+    nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
+
+    nodeSelection
+      .select('rect')
+      .attr('stroke-width', '4px')
+      .attr('stroke', 'yellow');
+    this.inputEl.nativeElement.focus();
+  }
+
+  /*************************************************************************/
+  /********************************* FORMS *********************************/
+  /*************************************************************************/
+  onChatSubmit() {
+    let newMessage: Message = this.crudService.addChild(
+      this.selectedNode,
+      this.currMessage
+    );
+    // return this node's data's children to normal (expand)
+    // so that the tree update does not think it does not have children
+    if (this.selectedNode.data._children) {
+      this.selectedNode.data.children = this.selectedNode.data._children;
+      this.selectedNode.data._children = null;
+    }
+    // update view
+    this.update(this.root);
+    let newNode =
+      this.root.find((d) => d.data.id === newMessage.id) || this.selectedNode;
+    this.centerNode(newNode);
+    // reset model
+    this.currMessage = '';
+    this.selectNode(newNode);
   }
 }

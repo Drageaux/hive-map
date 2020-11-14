@@ -33,7 +33,7 @@ export class CrudService {
     this.recurVisit(startNode, (m) => {});
   }
 
-  recurVisit(parentMessage, visitFn) {
+  recurVisit(parentMessage: Message, visitFn) {
     let childrenFn = this.getNextChildren;
 
     if (!parentMessage) {
@@ -71,6 +71,26 @@ export class CrudService {
     return uuid;
   }
 
+  addChild(node: CollapsibleHierarchyPointNode<Message>, text: string) {
+    if (!node) return null;
+    const message: Message = {
+      id: this.generateUUID(),
+      name: 'Current User',
+      text,
+      timestamp: new Date().toISOString(),
+    };
+
+    this.recurVisit(this.data, (m: Message) => {
+      if (m.id === node.data.id) {
+        m.children && !m._children ? m.children.push(message) : null;
+        m._children && !m.children ? m._children.push(message) : null;
+        !m._children && !m.children ? (m.children = [message]) : null;
+      }
+    });
+
+    return message;
+  }
+
   dragChild(
     oldParent: CollapsibleHierarchyPointNode<Message>,
     targetParent: CollapsibleHierarchyPointNode<Message>,
@@ -91,8 +111,6 @@ export class CrudService {
     this.recurVisit(this.data, (m) => {
       if (m.id === oldParent.data.id) {
         oldParentData = oldParent.data;
-        console.log('picked data object', oldParentData);
-        return;
       } else if (m.id === targetParent.data.id) {
         newParentData = targetParent.data;
       } else if (m.id === d.data.id) {
