@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
 import {
@@ -7,6 +7,7 @@ import {
   D3DragEvent,
   HierarchyPointNode,
   ValueFn,
+  selectAll,
 } from 'd3';
 import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
 import { CrudService } from './crud.service';
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit {
   // model
   currMessage = 'test';
   mode: 'chat' | 'drag' = 'chat';
+  @ViewChild('input') inputEl: ElementRef;
 
   // collapsed nodes
   collapsedNodes = new Map<string, boolean>();
@@ -383,12 +385,30 @@ export class AppComponent implements OnInit {
   }
 
   // Toggle children on click.
-  click(event, d) {
+  click(event, d: CollapsibleHierarchyPointNode<Message>) {
     console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
+
+    if (!(d.data.children || d.data._children)) {
+      let nodes = selectAll<
+        SVGGElement,
+        CollapsibleHierarchyPointNode<Message>
+      >('g.node').filter((e) => e.data.id !== d.data.id);
+      nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
+      nodes.select('text').attr;
+
+      console.log('Input your message', event.currentTarget);
+      let element = event.currentTarget;
+      select(element)
+        .select('rect')
+        .attr('stroke-width', '4px')
+        .attr('stroke', 'yellow');
+      this.inputEl.nativeElement.focus();
+      console.log(this.inputEl);
+    }
   }
 
   overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
@@ -521,7 +541,6 @@ export class AppComponent implements OnInit {
                 .attr('width', 200)
                 .attr('height', 40)
                 .style('fill-opacity', 0)
-                .style('fill', '#5396ff')
                 .style('rx', 15)
             )
             // circle enter
@@ -535,11 +554,10 @@ export class AppComponent implements OnInit {
                 })
             )
             // text enter
-            .call((g) =>
-              g
-                .append('text')
-                .append('textPath')
-                .text((d) => d.data.text)
+            .call(
+              (g) => g.append('text')
+              // .append('textPath')
+              // .text((d) => d.data.text)
             )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
@@ -587,9 +605,7 @@ export class AppComponent implements OnInit {
                 .style('fill-opacity', 0)
             )
       )
-
       .on('click', (event, d) => {
-        console.log(d.ancestors());
         return this.click(event, d);
       })
       .call(this.dragListener, this);
@@ -632,13 +648,19 @@ export class AppComponent implements OnInit {
       });
 
     node.select('rect').style('fill-opacity', 1);
+    let root = node
+      .filter((d) => d.depth === 0)
+      .select('rect')
+      .attr('fill', '#5691f0');
+    console.log(root);
 
     // Update the text to reflect whether node has children or not.
     node
       .select('text')
+      .style('font-family', 'Public Sans, sans-serif')
       .attr('x', (d) => {
         // return d.children || d._children ? -10 : 10;
-        return 50;
+        return '0.5rem';
       })
       .attr('dy', '.35em')
       .attr('class', 'nodeText')

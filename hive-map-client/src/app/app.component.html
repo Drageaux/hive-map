@@ -13,7 +13,8 @@
   </button>
 </div>
 <svg id="hive-map"></svg>
-<app-cursor></app-cursor>
-<app-message-input></app-message-input>
+<!-- <app-cursor></app-cursor> -->
+<input id="input" name="text" [(ngModel)]="currMessage" #input />
+<!-- <app-message-input></app-message-input> -->
 
 <router-outlet></router-outlet>
