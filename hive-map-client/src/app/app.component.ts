@@ -645,9 +645,10 @@ export class AppComponent implements AfterViewInit {
 
     this.setNodeColor(node);
 
+    let processedSearchTerm = this.currSearch.toLowerCase().trim();
     node
       .filter((d: MessageNode) => {
-        return this.currSearch && d.data.text.indexOf(this.currSearch) == -1;
+        return d.data.text.toLowerCase().indexOf(processedSearchTerm) == -1;
       })
       .attr('opacity', 0.2);
 
@@ -776,17 +777,21 @@ export class AppComponent implements AfterViewInit {
   }
 
   onSearch() {
-    console.log(this.currSearch);
+    let processedSearchTerm = this.currSearch.toLowerCase().trim();
     let allNode = selectAll('g.node');
     allNode
       .filter((d: MessageNode) => {
-        return d.data.text.indexOf(this.currSearch) == -1;
+        return d.data.text.toLowerCase().indexOf(processedSearchTerm) == -1;
       })
+      .transition()
+      .duration(250)
       .attr('opacity', 0.2);
     allNode
       .filter((d: MessageNode) => {
-        return d.data.text.indexOf(this.currSearch) !== -1;
+        return d.data.text.toLowerCase().indexOf(processedSearchTerm) !== -1;
       })
+      .transition()
+      .duration(250)
       .attr('opacity', 1);
   }
 }
