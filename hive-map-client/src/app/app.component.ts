@@ -15,7 +15,7 @@ import {
   zoomIdentity,
   max,
 } from 'd3';
-import { MessageNode } from './classes/collapsible-hierarchy-point-node';
+import { MessageNode } from './classes/message-node';
 import { CrudService } from './crud.service';
 
 @Component({
@@ -31,6 +31,7 @@ export class AppComponent implements AfterViewInit {
   currMessage = 'test';
   mode: 'chat' | 'drag' = 'chat';
   highestPopularity;
+  currSearch = '';
 
   // input
   @ViewChild('input') inputEl: ElementRef;
@@ -644,6 +645,12 @@ export class AppComponent implements AfterViewInit {
 
     this.setNodeColor(node);
 
+    node
+      .filter((d: MessageNode) => {
+        return this.currSearch && d.data.text.indexOf(this.currSearch) == -1;
+      })
+      .attr('opacity', 0.2);
+
     // Update the links…
     let link = this.svgGroup
       .selectAll<SVGPathElement, {}>('path.link')
@@ -766,5 +773,20 @@ export class AppComponent implements AfterViewInit {
     // reset model
     this.currMessage = '';
     this.selectNode(newNode);
+  }
+
+  onSearch() {
+    console.log(this.currSearch);
+    let allNode = selectAll('g.node');
+    allNode
+      .filter((d: MessageNode) => {
+        return d.data.text.indexOf(this.currSearch) == -1;
+      })
+      .attr('opacity', 0.2);
+    allNode
+      .filter((d: MessageNode) => {
+        return d.data.text.indexOf(this.currSearch) !== -1;
+      })
+      .attr('opacity', 1);
   }
 }

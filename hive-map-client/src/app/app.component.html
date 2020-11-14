@@ -11,6 +11,15 @@
   >
     Drag Mode
   </button>
+  <input
+    class="form-control"
+    id="search"
+    name="text"
+    placeholder="(search message...)"
+    [(ngModel)]="currSearch"
+    (ngModelChange)="onSearch()"
+    #search
+  />
 </div>
 <svg id="hive-map"></svg>
 <!-- <app-cursor></app-cursor> -->
