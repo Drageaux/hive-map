@@ -525,7 +525,9 @@ export class AppComponent implements AfterViewInit {
                 .style('font-size', '0.8rem');
             })
             // text enter
-            .call((g) => g.append('text').attr('class', 'message'))
+            .call((g) =>
+              g.append('text').attr('class', 'message').style('fill-opacity', 0)
+            )
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
               g
@@ -546,34 +548,19 @@ export class AppComponent implements AfterViewInit {
             )
             .call((g) => this.setNodeColor(g)),
         (exit) =>
-          exit
-            .call((g) =>
-              // Transition exiting nodes to the parent's new position.
-              g
-                .transition()
-                .duration(this.duration)
-                // to update if removing node
-                .attr(
-                  'transform',
-                  (d) => 'translate(' + d.parent.y + ',' + d.parent.x + ')'
-                )
-                .remove()
-            )
-            .call((g) =>
-              g
-                .select('rect')
-                .transition()
-                .duration(this.duration)
-                .style('fill-opacity', 0)
-            )
-            .call((g) => g.select('circle').attr('r', 0))
-            .call((g) =>
-              g
-                .select('text')
-                .transition()
-                .duration(this.duration)
-                .style('fill-opacity', 0)
-            )
+          exit.call((g) =>
+            // Transition exiting nodes to the parent's new position.
+            g
+              .transition()
+              .duration(this.duration)
+              // to update if removing node
+              .attr(
+                'transform',
+                (d) => 'translate(' + d.parent.y + ',' + d.parent.x + ')'
+              )
+              .style('opacity', 0)
+              .remove()
+          )
       )
       .on('click', (event, d) => this.clickToChat(event, d))
       .call(this.dragListener)
@@ -731,7 +718,11 @@ export class AppComponent implements AfterViewInit {
     popular.transition().duration(250).attr('fill', '#CFAC0C');
     // this user's messages are white
     let userMessages = node.filter((d) => d.data.name === this.username);
-    userMessages.select('rect').transition().duration(250).attr('fill', '#CCC');
+    userMessages
+      .select('rect')
+      .transition()
+      .duration(250)
+      .attr('fill', '#5691f0');
     userMessages.select('text').attr('fill', 'black');
   }
 
