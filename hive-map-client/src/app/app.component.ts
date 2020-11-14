@@ -520,14 +520,11 @@ export class AppComponent implements AfterViewInit {
                 .attr('class', 'hiddenChildren')
                 .attr('dy', 5.25)
                 .attr('dx', -8.5)
-                .attr('fill', 'white')
                 .style('font-family', 'Public Sans, sans-serif')
                 .style('font-size', '0.8rem');
             })
             // text enter
-            .call((g) =>
-              g.append('text').attr('class', 'message').style('fill-opacity', 0)
-            )
+            .call((g) => g.append('text').attr('class', 'message'))
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
               g
@@ -603,8 +600,7 @@ export class AppComponent implements AfterViewInit {
       .style('font-size', '0.8rem')
       .attr('x', -80)
       .attr('dy', '.35em')
-      .attr('class', 'nodeText')
-      .attr('fill', 'white')
+      .style('fill', 'white')
       .text((d) => d.data.text)
       // Fade the text in
       .transition()
@@ -703,24 +699,24 @@ export class AppComponent implements AfterViewInit {
   setNodeColor(node) {
     // Style different nodes
     // normal nodes are black
-    node.select('rect').transition().duration(250).attr('fill', 'black');
+    node.select('rect').transition().duration(250).style('fill', 'black');
     // popular node(s) is/are orange
-    let popular = node
-      .filter((d) => d.depth > 0 && d.popularity >= this.highestPopularity)
-      .select('rect');
-    popular.transition().duration(250).attr('fill', 'orange');
+    let popular = node.filter(
+      (d) => d.depth > 0 && d.popularity >= this.highestPopularity
+    );
+    popular.select('rect').transition().duration(250).style('fill', 'orange');
     popular
       .select('text.message')
       .transition()
       .duration(250)
-      .attr('fill', 'black');
+      .style('fill', 'black');
     // this user's messages are blue
     let userMessages = node.filter((d) => d.data.name === this.username);
     userMessages
       .select('rect')
       .transition()
       .duration(250)
-      .attr('fill', '#5691f0');
+      .style('fill', '#5691f0');
   }
 
   /*************************************************************************/
