@@ -676,8 +676,8 @@ export class AppComponent implements AfterViewInit {
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      d.x0 = d.x + 20;
-      d.y0 = d.y + 20;
+      d.x0 = d.x;
+      d.y0 = d.y;
     });
 
     this.selectNode(this.root);
@@ -704,26 +704,23 @@ export class AppComponent implements AfterViewInit {
     // Style different nodes
     // normal nodes are black
     node.select('rect').transition().duration(250).attr('fill', 'black');
-    // root node is blue
-    node
-      .filter((d) => d.depth === 0)
-      .select('rect')
-      .transition()
-      .duration(250)
-      .attr('fill', '#5691f0');
-    // popular node(s) is/are yellow
+    // popular node(s) is/are orange
     let popular = node
       .filter((d) => d.depth > 0 && d.popularity >= this.highestPopularity)
       .select('rect');
-    popular.transition().duration(250).attr('fill', '#CFAC0C');
-    // this user's messages are white
+    popular.transition().duration(250).attr('fill', 'orange');
+    popular
+      .select('text.message')
+      .transition()
+      .duration(250)
+      .attr('fill', 'black');
+    // this user's messages are blue
     let userMessages = node.filter((d) => d.data.name === this.username);
     userMessages
       .select('rect')
       .transition()
       .duration(250)
       .attr('fill', '#5691f0');
-    userMessages.select('text').attr('fill', 'black');
   }
 
   /*************************************************************************/
