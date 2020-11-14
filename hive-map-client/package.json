@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~10.1.4",
     "@angular/router": "~10.1.4",
     "bootstrap": "^4.5.3",
+    "bootstrap-icons": "^1.1.0",
     "d3": "^6.2.0",
     "fabric": "^4.2.0",
     "jquery": "^3.5.1",
