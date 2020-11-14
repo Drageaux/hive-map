@@ -217,6 +217,16 @@ export class AppComponent implements AfterViewInit {
     if (nodes.length > 1) {
       // remove link paths
       let links = tree.links();
+      this.svgGroup
+        .selectAll<SVGPathElement, {}>('path.link')
+        .data(links, (d: HierarchyPointLink<Message>) => d.target.data.id)
+        .remove();
+      // remove child nodes
+      this.svgGroup
+        .selectAll('g.node')
+        .data<MessageNode>(nodes, (d: MessageNode) => d.data.id)
+        .filter((d) => d.data.id !== datum.data.id)
+        .remove();
       // remove child nodes
     }
 
@@ -729,6 +739,10 @@ export class AppComponent implements AfterViewInit {
       .select('rect')
       .attr('fill', '#5691f0');
     // popular node(s) is/are yellow
+    let popular = node
+      .filter((d) => d.depth > 0 && d.popularity >= this.highestPopularity)
+      .select('rect');
+    popular.attr('fill', '#CFAC0C');
     // this user's messages are white
     let userMessages = node.filter((d) => d.data.name === this.username);
     userMessages.select('rect').attr('fill', '#CCC');
