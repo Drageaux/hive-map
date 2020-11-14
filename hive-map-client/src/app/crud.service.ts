@@ -80,8 +80,6 @@ export class CrudService {
       timestamp: new Date().toISOString(),
     };
 
-    let result = null;
-
     this.recurVisit(this.data, (m: Message) => {
       if (m.id === node.data.id) {
         m.children && !m._children ? m.children.push(message) : null;
@@ -113,8 +111,6 @@ export class CrudService {
     this.recurVisit(this.data, (m) => {
       if (m.id === oldParent.data.id) {
         oldParentData = oldParent.data;
-        console.log('picked data object', oldParentData);
-        return;
       } else if (m.id === targetParent.data.id) {
         newParentData = targetParent.data;
       } else if (m.id === d.data.id) {

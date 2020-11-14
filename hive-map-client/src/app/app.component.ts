@@ -273,7 +273,6 @@ export class AppComponent implements OnInit {
     d3.select(g).select('.ghostCircle').attr('pointer-events', '');
     this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
-    console.log(d);
     this.updateTempConnector(updatedNode);
     this.centerNode(updatedNode);
   }
@@ -333,7 +332,6 @@ export class AppComponent implements OnInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: CollapsibleHierarchyPointNode<Message>) {
-    console.log(source);
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -358,7 +356,6 @@ export class AppComponent implements OnInit {
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
   collapse(d: CollapsibleHierarchyPointNode<Message>) {
-    this.update(d);
     if (d.data.children) {
       d.data._children = d.data.children;
       // TODO: bug check
@@ -368,6 +365,7 @@ export class AppComponent implements OnInit {
   }
 
   expand(d: CollapsibleHierarchyPointNode<Message>) {
+    console.log(d);
     if (d.data._children) {
       d.data.children = d.data._children;
       // TODO: bug check
@@ -395,24 +393,7 @@ export class AppComponent implements OnInit {
     this.update(d);
     this.centerNode(d);
 
-    // select for chat
-    if (this.mode !== 'chat') return;
-    this.selectedNode = d;
-    let nodeSelection = select<
-      SVGGElement,
-      CollapsibleHierarchyPointNode<Message>
-    >(`[id="${d.data.id}"`);
-
-    let nodes = selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>(
-      `g.node`
-    ).filter((e) => e.data.id !== d.data.id);
-    nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
-
-    nodeSelection
-      .select('rect')
-      .attr('stroke-width', '4px')
-      .attr('stroke', 'yellow');
-    this.inputEl.nativeElement.focus();
+    this.selectNode(d);
   }
 
   overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
@@ -655,7 +636,6 @@ export class AppComponent implements OnInit {
       .filter((d) => d.depth === 0)
       .select('rect')
       .attr('fill', '#5691f0');
-    console.log(root);
 
     // Update the text to reflect whether node has children or not.
     node
@@ -736,6 +716,27 @@ export class AppComponent implements OnInit {
     });
   }
 
+  selectNode(d: CollapsibleHierarchyPointNode<Message>) {
+    // select for chat
+    if (this.mode !== 'chat') return;
+    this.selectedNode = d;
+    let nodeSelection = select<
+      SVGGElement,
+      CollapsibleHierarchyPointNode<Message>
+    >(`[id="${d.data.id}"`);
+
+    let nodes = selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>(
+      `g.node`
+    ).filter((e) => e.data.id !== d.data.id);
+    nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
+
+    nodeSelection
+      .select('rect')
+      .attr('stroke-width', '4px')
+      .attr('stroke', 'yellow');
+    this.inputEl.nativeElement.focus();
+  }
+
   /*************************************************************************/
   /********************************* FORMS *********************************/
   /*************************************************************************/
@@ -744,14 +745,19 @@ export class AppComponent implements OnInit {
       this.selectedNode,
       this.currMessage
     );
+    // return this node's data's children to normal (expand)
+    // so that the tree update does not think it does not have children
+    if (this.selectedNode.data._children) {
+      this.selectedNode.data.children = this.selectedNode.data._children;
+      this.selectedNode.data._children = null;
+    }
     // update view
     this.update(this.root);
     let newNode =
       this.root.find((d) => d.data.id === newMessage.id) || this.selectedNode;
-    this.expand(newNode);
     this.centerNode(newNode);
     // reset model
     this.currMessage = '';
-    this.selectedNode = null;
+    this.selectNode(newNode);
   }
 }
