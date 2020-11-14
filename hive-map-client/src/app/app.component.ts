@@ -748,11 +748,7 @@ export class AppComponent implements AfterViewInit {
     // this user's messages are white
     let userMessages = node.filter((d) => d.data.name === this.username);
     userMessages.select('rect').transition().duration(250).attr('fill', '#CCC');
-    userMessages
-      .select('text')
-      .transition()
-      .duration(250)
-      .attr('fill', 'black');
+    userMessages.select('text').attr('fill', 'black');
   }
 
   /*************************************************************************/
