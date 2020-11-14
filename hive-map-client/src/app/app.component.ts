@@ -1,14 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Message } from './messages/message';
 import * as d3 from 'd3';
-import {
-  select,
-  HierarchyPointLink,
-  D3DragEvent,
-  HierarchyPointNode,
-  ValueFn,
-  selectAll,
-} from 'd3';
+import { select, HierarchyPointLink, D3DragEvent, selectAll } from 'd3';
 import { MessageNode } from './classes/collapsible-hierarchy-point-node';
 import { CrudService } from './crud.service';
 
@@ -17,11 +10,14 @@ import { CrudService } from './crud.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements AfterViewInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
+  // user info
+  username = 'Current User';
   // model
   currMessage = 'test';
   mode: 'chat' | 'drag' = 'chat';
+  highestPopularity;
 
   // input
   @ViewChild('input') inputEl: ElementRef;
@@ -61,7 +57,7 @@ export class AppComponent implements OnInit {
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     // size of the diagram
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
@@ -200,7 +196,7 @@ export class AppComponent implements OnInit {
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
     d3.select(domNode).attr('class', 'node activeDrag');
 
-    this.svgGroup.selectAll<SVGGElement, MessageNode>('g.node').sort((a, b) => {
+    this.svgGroup.selectAll<SVGGElement, MessageNode>('g.node').sort((a) => {
       // select the parent and sort the path's
       if (a.data.id != datum.data.id) return 1;
       // a is not the hovered element, send "a" to the back
@@ -212,29 +208,14 @@ export class AppComponent implements OnInit {
     if (nodes.length > 1) {
       // remove link paths
       let links = tree.links();
-      let nodePaths = this.svgGroup
-        .selectAll<SVGPathElement, {}>('path.link')
-        .data(links, (d: HierarchyPointLink<Message>) => d.target.data.id)
-        .remove();
       // remove child nodes
-      let nodesExit = this.svgGroup
-        .selectAll('g.node')
-        .data<MessageNode>(nodes, (d: MessageNode) => d.data.id)
-        .filter((d, i) => {
-          if (d.data.id == datum.data.id) {
-            return false;
-          }
-          return true;
-        })
-        .remove();
     }
 
     // remove parent link
     let parentNode = datum.parent;
-    let parentLink = parentNode.links();
     this.svgGroup
       .selectAll<SVGPathElement, {}>('path.link')
-      .filter((t: HierarchyPointLink<Message>, i) => {
+      .filter((t: HierarchyPointLink<Message>) => {
         if (t.target.data.id == datum.data.id) {
           return true;
         }
@@ -265,7 +246,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  pan(domNode, direction) {
+  pan() {
     // let speed = this.panSpeed;
     // if (this.panTimer) {
     //   clearTimeout(this.panTimer);
@@ -380,7 +361,7 @@ export class AppComponent implements OnInit {
     this.targetNode = targetNode;
     // this.updateTempConnector(targetNode);
   }
-  outCircle(targetNode: MessageNode) {
+  outCircle() {
     this.targetNode = null;
     // this.updateTempConnector(targetNode);
   }
@@ -459,14 +440,15 @@ export class AppComponent implements OnInit {
     // Compute the new tree layout.
     this.root = this.d3tree(d3.hierarchy(this.crudService.data));
     this.sort();
-    // this.root.x0 = window.innerHeight / 2;
-    // this.root.y0 = 0;
     const nodes: MessageNode[] = this.root.descendants();
     const links = this.root.links();
 
+    // Count popularity by summing all children recursively.
+    // TODO: have a quartile to decide higher popularity, instead of just one highest
+    this.highestPopularity = 0;
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
-      d.sum((d) => 1);
+      d.sum(() => 1);
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
@@ -486,9 +468,13 @@ export class AppComponent implements OnInit {
           timestamp: d.data.timestamp,
         };
         let newHierarchy = d3.hierarchy(tempData);
-        newHierarchy.sum((d) => 1);
+        newHierarchy.sum(() => 1);
         d.popularity = newHierarchy.value;
       }
+
+      // update highest popularity, except for root node
+      if (d.popularity > this.highestPopularity && d.depth !== 0)
+        this.highestPopularity = d.popularity;
 
       return d.data.id;
     });
@@ -504,7 +490,7 @@ export class AppComponent implements OnInit {
             .attr('class', 'node')
             .attr(
               'transform',
-              (d) => 'translate(' + source.y + ',' + source.x + ')'
+              () => 'translate(' + source.y + ',' + source.x + ')'
             )
             .attr('id', (d) => d.data.id)
             // rect enter
@@ -540,16 +526,19 @@ export class AppComponent implements OnInit {
                 .append('circle')
                 .attr('class', 'ghostCircle')
                 .attr('pointer-events', 'mouseover')
-            ),
+            )
+            .call((g) => this.setNodeColor(g)),
         // node update
         (update) =>
-          update.call((g) =>
-            g
-              .select('rect')
-              .transition()
-              .duration(this.duration)
-              .style('fill-opacity', 1)
-          ),
+          update
+            .call((g) =>
+              g
+                .select('rect')
+                .transition()
+                .duration(this.duration)
+                .style('fill-opacity', 1)
+            )
+            .call((g) => this.setNodeColor(g)),
         (exit) =>
           exit
             .call((g) =>
@@ -600,7 +589,7 @@ export class AppComponent implements OnInit {
         this.overCircle(d);
       })
       .on('mouseout', (event, d) => {
-        this.outCircle(d);
+        this.outCircle();
       });
 
     // Change the circle fill depending on whether it has children and is collapsed
@@ -621,25 +610,13 @@ export class AppComponent implements OnInit {
       });
 
     node.select('rect').style('fill-opacity', 1);
-    // Style different nodes
-    // root node is blue
-    let root = node
-      .filter((d) => d.depth === 0)
-      .select('rect')
-      .attr('fill', '#5691f0');
-    // popular node(s) is/are yellow
-    let popularityRating = 0;
-    this.root.descendants().forEach((d) => {});
-    // let popularNodes = node.filter(d => d.)
 
     // Update the text to reflect whether node has children or not.
     node
       .select('text')
       .style('font-family', 'Public Sans, sans-serif')
-      .attr('x', (d) => {
-        // return d.children || d._children ? -10 : 10;
-        return '0.5rem';
-      })
+      .style('font-size', '0.8rem')
+      .attr('x', '0.5rem')
       .attr('dy', '.35em')
       .attr('class', 'nodeText')
       // .attr('text-anchor', (d) => {
@@ -651,6 +628,8 @@ export class AppComponent implements OnInit {
       .transition()
       .duration(this.duration)
       .style('fill-opacity', 1);
+
+    this.setNodeColor(node);
 
     // Update the links…
     let link = this.svgGroup
@@ -664,7 +643,7 @@ export class AppComponent implements OnInit {
       .enter()
       .insert('path', 'g')
       .attr('class', 'link')
-      .attr('d', (d: HierarchyPointLink<Message>) => {
+      .attr('d', () => {
         var o = {
           x: source.x0,
           y: source.y0,
@@ -692,7 +671,7 @@ export class AppComponent implements OnInit {
       .exit()
       .transition()
       .duration(this.duration)
-      .attr('d', (d: HierarchyPointLink<Message>) => {
+      .attr('d', () => {
         var o = {
           x: source.x,
           y: source.y,
@@ -709,6 +688,8 @@ export class AppComponent implements OnInit {
       d.x0 = d.x;
       d.y0 = d.y;
     });
+
+    this.selectNode(this.root);
   }
 
   selectNode(d: MessageNode) {
@@ -727,6 +708,22 @@ export class AppComponent implements OnInit {
       .attr('stroke-width', '4px')
       .attr('stroke', 'yellow');
     this.inputEl.nativeElement.focus();
+  }
+
+  setNodeColor(node) {
+    // Style different nodes
+    // normal nodes are black
+    node.select('rect').attr('fill', 'black');
+    // root node is blue
+    node
+      .filter((d) => d.depth === 0)
+      .select('rect')
+      .attr('fill', '#5691f0');
+    // popular node(s) is/are yellow
+    // this user's messages are white
+    let userMessages = node.filter((d) => d.data.name === this.username);
+    userMessages.select('rect').attr('fill', '#CCC');
+    userMessages.select('text').attr('fill', 'black');
   }
 
   /*************************************************************************/
