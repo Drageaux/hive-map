@@ -22,13 +22,16 @@ import { CrudService } from './crud.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  host: {
+    '(window:resize)': 'resizeSvg($event)',
+  },
 })
 export class AppComponent implements AfterViewInit {
   // inspired by: http://bl.ocks.org/robschmuecker/7880033
   // user info
   username = 'Current User';
   // model
-  currMessage = 'test';
+  currMessage = '';
   mode: 'chat' | 'drag' = 'chat';
   highestPopularity;
   currSearch = '';
@@ -71,13 +74,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // size of the diagram
-    let viewerWidth = window.innerWidth;
-    let viewerHeight = window.innerHeight;
-    this.svg = select<SVGSVGElement, {}>('#hive-map')
-      .attr('width', viewerWidth)
-      .attr('height', viewerHeight)
-      .attr('class', 'overlay');
+    this.resizeSvg();
 
     this.svgGroup = this.svg.append('g');
 
@@ -94,7 +91,7 @@ export class AppComponent implements AfterViewInit {
     this.defineDragListener();
 
     // Initiate root
-    this.root.x0 = viewerHeight / 2;
+    this.root.x0 = window.innerHeight / 2;
     this.root.y0 = 0;
     this.update(this.root);
     this.centerNode(this.root);
@@ -197,6 +194,19 @@ export class AppComponent implements AfterViewInit {
       .on('end', function (event, d) {
         return onEnd(this, event, d);
       });
+  }
+
+  resizeSvg($event?) {
+    console.log($event);
+    // size of the diagram
+    let viewerWidth = window.innerWidth;
+    let viewerHeight = window.innerHeight;
+    this.svg = select<SVGSVGElement, {}>('#hive-map')
+      .attr('width', viewerWidth)
+      .attr('height', viewerHeight)
+      .attr('class', 'overlay');
+
+    if (this.selectedNode) this.centerNode(this.selectedNode);
   }
 
   /*************************************************************************/
@@ -307,12 +317,13 @@ export class AppComponent implements AfterViewInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: MessageNode) {
-    // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
+    if (!(source && this.svg && this.svgGroup)) return;
     let scale = zoomTransform(this.svg.node()).k;
     let x = -source.y;
     let y = -source.x;
     x = x * scale + window.innerWidth / 2;
     y = y * scale + window.innerHeight / 2;
+
     this.svgGroup
       .transition()
       .duration(this.duration)
@@ -366,6 +377,7 @@ export class AppComponent implements AfterViewInit {
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
+    this.selectNode(d);
   }
 
   // Select to chat on click
