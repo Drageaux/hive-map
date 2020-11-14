@@ -732,21 +732,27 @@ export class AppComponent implements AfterViewInit {
   setNodeColor(node) {
     // Style different nodes
     // normal nodes are black
-    node.select('rect').attr('fill', 'black');
+    node.select('rect').transition().duration(250).attr('fill', 'black');
     // root node is blue
     node
       .filter((d) => d.depth === 0)
       .select('rect')
+      .transition()
+      .duration(250)
       .attr('fill', '#5691f0');
     // popular node(s) is/are yellow
     let popular = node
       .filter((d) => d.depth > 0 && d.popularity >= this.highestPopularity)
       .select('rect');
-    popular.attr('fill', '#CFAC0C');
+    popular.transition().duration(250).attr('fill', '#CFAC0C');
     // this user's messages are white
     let userMessages = node.filter((d) => d.data.name === this.username);
-    userMessages.select('rect').attr('fill', '#CCC');
-    userMessages.select('text').attr('fill', 'black');
+    userMessages.select('rect').transition().duration(250).attr('fill', '#CCC');
+    userMessages
+      .select('text')
+      .transition()
+      .duration(250)
+      .attr('fill', 'black');
   }
 
   /*************************************************************************/
