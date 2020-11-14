@@ -118,35 +118,14 @@ export class CrudService {
     let index = oldParentData.children.map((e) => e.id).indexOf(nodeData.id);
 
     // now remove the element from the parent
-    // console.log("parent's children", d.parent.children);
-    // console.log('index of node in parent list', index);
     if (index > -1) {
       oldParentData.children.splice(index, 1);
-      // console.log(oldParentData.children);
     }
     // insert it into the new elements children
-    // console.log('targetNode:', targetParent);
     if (!newParentData.children || newParentData.children.length === 0) {
       newParentData.children = [nodeData];
     } else {
       newParentData.children.push(nodeData);
     }
-
-    // if (
-    //   typeof targetParent.children !== 'undefined' ||
-    //   typeof targetParent._children !== 'undefined'
-    // ) {
-    //   // console.log('has children');
-    //   if (typeof targetParent.children !== 'undefined') {
-    //     targetParent.children.push(d);
-    //   } else {
-    //     targetParent._children.push(d);
-    //   }
-    // } else {
-    //   // console.log('no children');
-    //   targetParent.children = [];
-    //   targetParent.children.push(d);
-    //   // console.log('now with children', targetParent);
-    // }
   }
 }
