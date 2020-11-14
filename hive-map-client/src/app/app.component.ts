@@ -466,7 +466,7 @@ export class AppComponent implements OnInit {
 
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
-      d.count();
+      d.sum((d) => 1);
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
@@ -476,11 +476,17 @@ export class AppComponent implements OnInit {
       d.popularity = d.value;
       // if collapsed, recreate the collapsed hierarchy to count its node
       if (d.data._children) {
-        let tempData = d.data;
-        tempData.children = tempData._children;
+        let tempData = new Message();
+        tempData = {
+          id: d.data.id,
+          text: d.data.text,
+          children: d.data._children,
+          name: d.data.name,
+          picture: d.data.picture,
+          timestamp: d.data.timestamp,
+        };
         let newHierarchy = d3.hierarchy(tempData);
-        newHierarchy.count();
-        console.log(newHierarchy);
+        newHierarchy.sum((d) => 1);
         d.popularity = newHierarchy.value;
       }
 
@@ -623,9 +629,7 @@ export class AppComponent implements OnInit {
       .attr('fill', '#5691f0');
     // popular node(s) is/are yellow
     let popularityRating = 0;
-    this.root.descendants().forEach((d) => {
-      // console.log(d.value, d.data.name);
-    });
+    this.root.descendants().forEach((d) => {});
     // let popularNodes = node.filter(d => d.)
 
     // Update the text to reflect whether node has children or not.
