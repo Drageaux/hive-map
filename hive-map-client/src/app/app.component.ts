@@ -497,28 +497,35 @@ export class AppComponent implements AfterViewInit {
               g
                 .append('rect')
                 .attr('y', -20)
-                .attr('x', 0)
+                .attr('x', -100)
                 .attr('width', 200)
                 .attr('height', 40)
                 .style('fill-opacity', 0)
                 .style('rx', 15)
             )
-            // // circle enter
-            // .call((g) =>
-            //   g
-            //     .append('circle')
-            //     .attr('class', 'nodeCircle')
-            //     .attr('r', 0)
-            //     .style('fill', (d: MessageNode) => {
-            //       return d._children ? 'lightsteelblue' : '#fff';
-            //     })
-            // )
+            // circle enter
+            .call((g) => {
+              let expand = g
+                .append('g')
+                .attr('class', 'expand')
+                .attr('transform', 'translate(100, -20)');
+              expand
+                .append('circle')
+                .attr('class', 'nodeCircle')
+                .attr('pointer-events', 'click')
+                .attr('r', 12)
+                .style('fill', 'lightsteelblue');
+              expand
+                .append('text')
+                .attr('class', 'hiddenChildren')
+                .attr('dy', 5.25)
+                .attr('dx', -8.5)
+                .attr('fill', 'white')
+                .style('font-family', 'Public Sans, sans-serif')
+                .style('font-size', '0.8rem');
+            })
             // text enter
-            .call(
-              (g) => g.append('text')
-              // .append('textPath')
-              // .text((d) => d.data.text)
-            )
+            .call((g) => g.append('text').attr('class', 'message'))
             // phantom node to give us mouseover in a radius around it
             .call((g) =>
               g
@@ -572,11 +579,16 @@ export class AppComponent implements AfterViewInit {
       .call(this.dragListener)
       .on('dblclick', (event, d) => this.doubleClickCollapse(event, d));
 
+    // Expand circles will get positions
+    let expandG = node
+      .select('g.expand')
+      .style('display', (d) => (d.data._children ? 'inline' : 'none'));
+    expandG.select('text').text((d) => `+${d.popularity - 1}`);
+
     // All ghost circles will get its latest positions
     node
       .select('circle.ghostCircle')
-      .attr('x', 200)
-      .attr('r', 30)
+      .attr('r', 60)
       .attr('opacity', 0.2) // change this to zero to hide the target area
       .style('fill', 'red')
       .attr('pointer-events', 'mouseover')
@@ -586,15 +598,6 @@ export class AppComponent implements AfterViewInit {
       .on('mouseout', (event, d) => {
         this.outCircle();
       });
-
-    // Change the circle fill depending on whether it has children and is collapsed
-    // node
-    //   .join()
-    //   .select('circle.nodeCircle')
-    //   .style('r', (d) => 4.5)
-    //   .style('fill', (d) => {
-    //     return d._children ? 'lightsteelblue' : '#fff';
-    //   });
 
     // Transition nodes to their new position.
     node
@@ -608,15 +611,12 @@ export class AppComponent implements AfterViewInit {
 
     // Update the text to reflect whether node has children or not.
     node
-      .select('text')
+      .select('text.message')
       .style('font-family', 'Public Sans, sans-serif')
       .style('font-size', '0.8rem')
-      .attr('x', '0.5rem')
+      .attr('x', -80)
       .attr('dy', '.35em')
       .attr('class', 'nodeText')
-      // .attr('text-anchor', (d) => {
-      //   // return d.children || d._children ? 'end' : 'start';
-      // })
       .attr('fill', 'white')
       .text((d) => d.data.text)
       // Fade the text in
@@ -624,8 +624,10 @@ export class AppComponent implements AfterViewInit {
       .duration(this.duration)
       .style('fill-opacity', 1);
 
+    // Update the colors
     this.setNodeColor(node);
 
+    // Search the text and dim irrelevant nodes
     let processedSearchTerm = this.currSearch.toLowerCase().trim();
     node
       .filter((d: MessageNode) => {
@@ -687,8 +689,8 @@ export class AppComponent implements AfterViewInit {
 
     // Stash the old positions for transition.
     nodes.forEach(function (d) {
-      d.x0 = d.x;
-      d.y0 = d.y;
+      d.x0 = d.x + 20;
+      d.y0 = d.y + 20;
     });
 
     this.selectNode(this.root);
