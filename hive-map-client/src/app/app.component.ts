@@ -88,6 +88,7 @@ export class AppComponent implements AfterViewInit {
         this.svgGroup.attr('transform', transform);
       });
     this.svg.call(this.zoomListener);
+    this.svg.on('dblclick.zoom', null);
 
     // Define the dragListener for drag/drop behaviour of nodes.
     this.defineDragListener();
@@ -359,15 +360,18 @@ export class AppComponent implements AfterViewInit {
     return d;
   }
 
-  // Toggle children on click.
-  click(event, d: MessageNode) {
-    console.log(event, d);
+  // Toggle children on double click.
+  doubleClickCollapse(event, d: MessageNode) {
     if (event.defaultPrevented) return; // click suppressed
-    // TODO: differentiate click to chat versus collapse
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
+  }
 
+  // Select to chat on click
+  clickToChat(event, d: MessageNode) {
+    if (event.defaultPrevented) return; // click suppressed
+    this.centerNode(d);
     this.selectNode(d);
   }
 
@@ -583,13 +587,9 @@ export class AppComponent implements AfterViewInit {
                 .style('fill-opacity', 0)
             )
       )
-      .on('click', (event, d) => this.click(event, d))
-      .call(this.dragListener);
-
-    // .on('dblclick', (event) => {
-    //   event.preventDefault();
-    //   console.log(event);
-    // });
+      .on('click', (event, d) => this.clickToChat(event, d))
+      .call(this.dragListener)
+      .on('dblclick', (event, d) => this.doubleClickCollapse(event, d));
 
     // All ghost circles will get its latest positions
     node

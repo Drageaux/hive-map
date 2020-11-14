@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import exampleData from '../assets/mindmap-example.json';
-import { MessageNode } from './classes/collapsible-hierarchy-point-node';
+import { MessageNode } from './classes/message-node';
 import { Message } from './messages/message';
 
 @Injectable({
