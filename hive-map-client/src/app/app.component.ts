@@ -9,7 +9,7 @@ import {
   ValueFn,
   selectAll,
 } from 'd3';
-import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
+import { MessageNode } from './classes/collapsible-hierarchy-point-node';
 import { CrudService } from './crud.service';
 
 @Component({
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
 
   // input
   @ViewChild('input') inputEl: ElementRef;
-  selectedNode: CollapsibleHierarchyPointNode<Message>;
+  selectedNode: MessageNode;
 
   // collapsed nodes
   collapsedNodes = new Map<string, boolean>();
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
     .linkHorizontal()
     .x((d) => d[1])
     .y((d) => d[0]); // node paths
-  root: CollapsibleHierarchyPointNode<Message>;
+  root: MessageNode;
   // svg-related objects
   svg: d3.Selection<SVGSVGElement, {}, HTMLElement, any>;
   // append a group which holds all nodes and which the zoom Listener can act upon.
@@ -95,12 +95,8 @@ export class AppComponent implements OnInit {
   defineDragListener() {
     let onStart = (
       g: SVGGElement,
-      event: D3DragEvent<
-        SVGGElement,
-        CollapsibleHierarchyPointNode<Message>,
-        CollapsibleHierarchyPointNode<Message>
-      >,
-      d: CollapsibleHierarchyPointNode<Message>
+      event: D3DragEvent<SVGGElement, MessageNode, MessageNode>,
+      d: MessageNode
     ): void => {
       if (d === this.root || this.mode !== 'drag') {
         // TODO: move root
@@ -114,12 +110,8 @@ export class AppComponent implements OnInit {
     };
     let onDrag = (
       g: SVGGElement,
-      event: D3DragEvent<
-        SVGGElement,
-        CollapsibleHierarchyPointNode<Message>,
-        CollapsibleHierarchyPointNode<Message>
-      >,
-      d: CollapsibleHierarchyPointNode<Message>
+      event: D3DragEvent<SVGGElement, MessageNode, MessageNode>,
+      d: MessageNode
     ) => {
       if (d === this.root || this.mode !== 'drag') {
         // TODO: move root
@@ -140,12 +132,8 @@ export class AppComponent implements OnInit {
     };
     let onEnd = (
       g: SVGGElement,
-      event: D3DragEvent<
-        SVGGElement,
-        CollapsibleHierarchyPointNode<Message>,
-        CollapsibleHierarchyPointNode<Message>
-      >,
-      d: CollapsibleHierarchyPointNode<Message>
+      event: D3DragEvent<SVGGElement, MessageNode, MessageNode>,
+      d: MessageNode
     ) => {
       if (d === this.root) {
         return;
@@ -192,7 +180,7 @@ export class AppComponent implements OnInit {
     };
 
     this.dragListener = d3
-      .drag<SVGGElement, CollapsibleHierarchyPointNode<Message>>()
+      .drag<SVGGElement, MessageNode>()
       .on('start', function (event, d) {
         return onStart(this, event, d);
       })
@@ -207,22 +195,17 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /**************************** MINDMAP CONTROLS ***************************/
   /*************************************************************************/
-  initiateDrag(
-    datum: CollapsibleHierarchyPointNode<Message>,
-    domNode: SVGGElement
-  ) {
+  initiateDrag(datum: MessageNode, domNode: SVGGElement) {
     d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
     d3.select(domNode).attr('class', 'node activeDrag');
 
-    this.svgGroup
-      .selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>('g.node')
-      .sort((a, b) => {
-        // select the parent and sort the path's
-        if (a.data.id != datum.data.id) return 1;
-        // a is not the hovered element, send "a" to the back
-        else return -1; // a is the hovered element, bring "a" to the front
-      });
+    this.svgGroup.selectAll<SVGGElement, MessageNode>('g.node').sort((a, b) => {
+      // select the parent and sort the path's
+      if (a.data.id != datum.data.id) return 1;
+      // a is not the hovered element, send "a" to the back
+      else return -1; // a is the hovered element, bring "a" to the front
+    });
     // if nodes has children, remove the links and nodes
     let nodes = datum.descendants();
     let tree = this.d3tree(datum);
@@ -236,10 +219,7 @@ export class AppComponent implements OnInit {
       // remove child nodes
       let nodesExit = this.svgGroup
         .selectAll('g.node')
-        .data<CollapsibleHierarchyPointNode<Message>>(
-          nodes,
-          (d: CollapsibleHierarchyPointNode<Message>) => d.data.id
-        )
+        .data<MessageNode>(nodes, (d: MessageNode) => d.data.id)
         .filter((d, i) => {
           if (d.data.id == datum.data.id) {
             return false;
@@ -265,7 +245,7 @@ export class AppComponent implements OnInit {
     this.dragStarted = null;
   }
 
-  endDrag(d: CollapsibleHierarchyPointNode<Message>, g: SVGGElement) {
+  endDrag(d: MessageNode, g: SVGGElement) {
     this.targetNode = null;
     d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
     d3.select(g).attr('class', 'node');
@@ -331,7 +311,7 @@ export class AppComponent implements OnInit {
   // }
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
-  centerNode(source: CollapsibleHierarchyPointNode<Message>) {
+  centerNode(source: MessageNode) {
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
     let scale = d3.zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -355,7 +335,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
-  collapse(d: CollapsibleHierarchyPointNode<Message>) {
+  collapse(d: MessageNode) {
     if (d.data.children) {
       d.data._children = d.data.children;
       // TODO: bug check
@@ -364,7 +344,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  expand(d: CollapsibleHierarchyPointNode<Message>) {
+  expand(d: MessageNode) {
     console.log(d);
     if (d.data._children) {
       d.data.children = d.data._children;
@@ -374,7 +354,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  toggleChildren(d: CollapsibleHierarchyPointNode<Message>) {
+  toggleChildren(d: MessageNode) {
     if (d.data.children) {
       d.data._children = d.data.children;
       d.data.children = null;
@@ -386,8 +366,8 @@ export class AppComponent implements OnInit {
   }
 
   // Toggle children on click.
-  click(event, d: CollapsibleHierarchyPointNode<Message>) {
-    // console.log(event, d);
+  click(event, d: MessageNode) {
+    console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
@@ -396,17 +376,17 @@ export class AppComponent implements OnInit {
     this.selectNode(d);
   }
 
-  overCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
+  overCircle(targetNode: MessageNode) {
     this.targetNode = targetNode;
     // this.updateTempConnector(targetNode);
   }
-  outCircle(targetNode: CollapsibleHierarchyPointNode<Message>) {
+  outCircle(targetNode: MessageNode) {
     this.targetNode = null;
     // this.updateTempConnector(targetNode);
   }
 
   // Function to update the temporary connector indicating dragging affiliation
-  updateTempConnector(d: CollapsibleHierarchyPointNode<Message>) {
+  updateTempConnector(d: MessageNode) {
     var data = [];
     if (d !== null && this.targetNode !== null) {
       // have to flip the source coordinates since we did this for the existing connectors on the original tree
@@ -433,23 +413,17 @@ export class AppComponent implements OnInit {
       .attr('class', 'templink')
       .attr('d', (d: HierarchyPointLink<Message>) => {
         return this.diagonal({
-          source: [
-            (d.source as CollapsibleHierarchyPointNode<Message>).x0,
-            (d.source as CollapsibleHierarchyPointNode<Message>).y0,
-          ],
+          source: [(d.source as MessageNode).x0, (d.source as MessageNode).y0],
           target: [d.target.x, d.target.y],
         });
       })
       .attr('pointer-events', 'none');
 
     tempLink.attr('d', (d: HierarchyPointLink<Message>) => {
-      console.log(d.source as CollapsibleHierarchyPointNode<Message>);
-      console.log(d.target as CollapsibleHierarchyPointNode<Message>);
+      console.log(d.source as MessageNode);
+      console.log(d.target as MessageNode);
       return this.diagonal({
-        source: [
-          (d.source as CollapsibleHierarchyPointNode<Message>).x0,
-          (d.source as CollapsibleHierarchyPointNode<Message>).y0,
-        ],
+        source: [(d.source as MessageNode).x0, (d.source as MessageNode).y0],
         target: [d.target.x, d.target.y],
       });
     });
@@ -460,7 +434,7 @@ export class AppComponent implements OnInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update(source: CollapsibleHierarchyPointNode<Message>) {
+  update(source: MessageNode) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -487,9 +461,7 @@ export class AppComponent implements OnInit {
     this.sort();
     // this.root.x0 = window.innerHeight / 2;
     // this.root.y0 = 0;
-    const nodes: CollapsibleHierarchyPointNode<
-      Message
-    >[] = this.root.descendants();
+    const nodes: MessageNode[] = this.root.descendants();
     const links = this.root.links();
 
     // Set widths between levels based on maxLabelLength.
@@ -503,10 +475,7 @@ export class AppComponent implements OnInit {
     // Update the nodes…
     let node = this.svgGroup
       .selectAll<SVGGElement, {}>('g.node')
-      .data<CollapsibleHierarchyPointNode<Message>>(
-        nodes,
-        (d: CollapsibleHierarchyPointNode<Message>) => d.data.id
-      )
+      .data<MessageNode>(nodes, (d: MessageNode) => d.data.id)
       .join(
         (enter) =>
           // node enter
@@ -535,7 +504,7 @@ export class AppComponent implements OnInit {
                 .append('circle')
                 .attr('class', 'nodeCircle')
                 .attr('r', 0)
-                .style('fill', (d: CollapsibleHierarchyPointNode<Message>) => {
+                .style('fill', (d: MessageNode) => {
                   return d._children ? 'lightsteelblue' : '#fff';
                 })
             )
@@ -716,18 +685,15 @@ export class AppComponent implements OnInit {
     });
   }
 
-  selectNode(d: CollapsibleHierarchyPointNode<Message>) {
+  selectNode(d: MessageNode) {
     // select for chat
     if (this.mode !== 'chat') return;
     this.selectedNode = d;
-    let nodeSelection = select<
-      SVGGElement,
-      CollapsibleHierarchyPointNode<Message>
-    >(`[id="${d.data.id}"`);
+    let nodeSelection = select<SVGGElement, MessageNode>(`[id="${d.data.id}"`);
 
-    let nodes = selectAll<SVGGElement, CollapsibleHierarchyPointNode<Message>>(
-      `g.node`
-    ).filter((e) => e.data.id !== d.data.id);
+    let nodes = selectAll<SVGGElement, MessageNode>(`g.node`).filter(
+      (e) => e.data.id !== d.data.id
+    );
     nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
 
     nodeSelection

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import exampleData from '../assets/mindmap-example.json';
-import { CollapsibleHierarchyPointNode } from './classes/collapsible-hierarchy-point-node';
+import { MessageNode } from './classes/collapsible-hierarchy-point-node';
 import { Message } from './messages/message';
 
 @Injectable({
@@ -71,7 +71,7 @@ export class CrudService {
     return uuid;
   }
 
-  addChild(node: CollapsibleHierarchyPointNode<Message>, text: string) {
+  addChild(node: MessageNode, text: string) {
     if (!node) return null;
     const message: Message = {
       id: this.generateUUID(),
@@ -91,11 +91,7 @@ export class CrudService {
     return message;
   }
 
-  dragChild(
-    oldParent: CollapsibleHierarchyPointNode<Message>,
-    targetParent: CollapsibleHierarchyPointNode<Message>,
-    d: CollapsibleHierarchyPointNode<Message>
-  ) {
+  dragChild(oldParent: MessageNode, targetParent: MessageNode, d: MessageNode) {
     // these 3 nodes must be different to make udpates
     if (
       oldParent.data.id === targetParent.data.id ||
