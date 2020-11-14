@@ -22,7 +22,15 @@ export class AppComponent implements OnInit {
   // model
   currMessage = 'test';
   mode: 'chat' | 'drag' = 'chat';
+
+  // input
   @ViewChild('input') inputEl: ElementRef;
+  selectedNode: d3.Selection<
+    SVGGElement,
+    CollapsibleHierarchyPointNode<Message>,
+    HTMLElement,
+    any
+  >;
 
   // collapsed nodes
   collapsedNodes = new Map<string, boolean>();
@@ -386,28 +394,28 @@ export class AppComponent implements OnInit {
 
   // Toggle children on click.
   click(event, d: CollapsibleHierarchyPointNode<Message>) {
-    console.log(event, d);
+    // console.log(event, d);
     if (event.defaultPrevented) return; // click suppressed
     d = this.toggleChildren(d);
     this.update(d);
     this.centerNode(d);
 
     if (!(d.data.children || d.data._children)) {
+      this.selectedNode = select<
+        SVGGElement,
+        CollapsibleHierarchyPointNode<Message>
+      >(`[id="${d.data.id}"`);
       let nodes = selectAll<
         SVGGElement,
         CollapsibleHierarchyPointNode<Message>
-      >('g.node').filter((e) => e.data.id !== d.data.id);
+      >(`g.node`).filter((e) => e.data.id !== d.data.id);
       nodes.select('rect').attr('stroke-width', 0).attr('stroke', 'yellow');
-      nodes.select('text').attr;
 
-      console.log('Input your message', event.currentTarget);
-      let element = event.currentTarget;
-      select(element)
+      this.selectedNode
         .select('rect')
         .attr('stroke-width', '4px')
         .attr('stroke', 'yellow');
       this.inputEl.nativeElement.focus();
-      console.log(this.inputEl);
     }
   }
 
@@ -532,6 +540,7 @@ export class AppComponent implements OnInit {
               'transform',
               (d) => 'translate(' + source.y + ',' + source.x + ')'
             )
+            .attr('id', (d) => d.data.id)
             // rect enter
             .call((g) =>
               g
@@ -605,10 +614,8 @@ export class AppComponent implements OnInit {
                 .style('fill-opacity', 0)
             )
       )
-      .on('click', (event, d) => {
-        return this.click(event, d);
-      })
-      .call(this.dragListener, this);
+      .on('click', (event, d) => this.click(event, d))
+      .call(this.dragListener);
 
     // .on('dblclick', (event) => {
     //   event.preventDefault();
