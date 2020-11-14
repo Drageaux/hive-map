@@ -1,7 +1,20 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Message } from './messages/message';
-import * as d3 from 'd3';
-import { select, HierarchyPointLink, D3DragEvent, selectAll } from 'd3';
+import {
+  select,
+  selectAll,
+  Selection,
+  hierarchy,
+  tree,
+  linkHorizontal,
+  HierarchyPointLink,
+  drag,
+  D3DragEvent,
+  zoom,
+  zoomTransform,
+  zoomIdentity,
+  max,
+} from 'd3';
 import { MessageNode } from './classes/collapsible-hierarchy-point-node';
 import { CrudService } from './crud.service';
 
@@ -27,16 +40,15 @@ export class AppComponent implements AfterViewInit {
   collapsedNodes = new Map<string, boolean>();
 
   // d3 set up
-  d3tree = d3.tree<Message>().size([1000, 1000]);
-  diagonal = d3
-    .linkHorizontal()
+  d3tree = tree<Message>().size([1000, 1000]);
+  diagonal = linkHorizontal()
     .x((d) => d[1])
     .y((d) => d[0]); // node paths
   root: MessageNode;
   // svg-related objects
-  svg: d3.Selection<SVGSVGElement, {}, HTMLElement, any>;
+  svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
   // append a group which holds all nodes and which the zoom Listener can act upon.
-  svgGroup: d3.Selection<SVGGElement, {}, HTMLElement, any>;
+  svgGroup: Selection<SVGGElement, {}, HTMLElement, any>;
 
   // zoom
   zoomListener;
@@ -54,15 +66,14 @@ export class AppComponent implements AfterViewInit {
   duration = 750;
 
   constructor(private crudService: CrudService) {
-    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
+    this.root = this.d3tree(hierarchy(this.crudService.data));
   }
 
   ngAfterViewInit() {
     // size of the diagram
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
-    this.svg = d3
-      .select<SVGSVGElement, {}>('#hive-map')
+    this.svg = select<SVGSVGElement, {}>('#hive-map')
       .attr('width', viewerWidth)
       .attr('height', viewerHeight)
       .attr('class', 'overlay');
@@ -70,8 +81,7 @@ export class AppComponent implements AfterViewInit {
     this.svgGroup = this.svg.append('g');
 
     // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    this.zoomListener = d3
-      .zoom()
+    this.zoomListener = zoom()
       .scaleExtent([0.1, 3])
       .on('zoom', ({ transform }) => {
         this.svgGroup.attr('transform', transform);
@@ -175,8 +185,7 @@ export class AppComponent implements AfterViewInit {
       }
     };
 
-    this.dragListener = d3
-      .drag<SVGGElement, MessageNode>()
+    this.dragListener = drag<SVGGElement, MessageNode>()
       .on('start', function (event, d) {
         return onStart(this, event, d);
       })
@@ -192,9 +201,9 @@ export class AppComponent implements AfterViewInit {
   /**************************** MINDMAP CONTROLS ***************************/
   /*************************************************************************/
   initiateDrag(datum: MessageNode, domNode: SVGGElement) {
-    d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
-    d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
-    d3.select(domNode).attr('class', 'node activeDrag');
+    select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
+    selectAll('.ghostCircle').attr('class', 'ghostCircle show');
+    select(domNode).attr('class', 'node activeDrag');
 
     this.svgGroup.selectAll<SVGGElement, MessageNode>('g.node').sort((a) => {
       // select the parent and sort the path's
@@ -228,10 +237,10 @@ export class AppComponent implements AfterViewInit {
 
   endDrag(d: MessageNode, g: SVGGElement) {
     this.targetNode = null;
-    d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
-    d3.select(g).attr('class', 'node');
+    selectAll('.ghostCircle').attr('class', 'ghostCircle');
+    select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
-    d3.select(g).select('.ghostCircle').attr('pointer-events', '');
+    select(g).select('.ghostCircle').attr('pointer-events', '');
     this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
     this.updateTempConnector(updatedNode);
@@ -294,7 +303,7 @@ export class AppComponent implements AfterViewInit {
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: MessageNode) {
     // console.log('zoom level:', d3.zoomTransform(this.svg.node()).k);
-    let scale = d3.zoomTransform(this.svg.node()).k;
+    let scale = zoomTransform(this.svg.node()).k;
     let x = -source.y;
     let y = -source.x;
     x = x * scale + window.innerWidth / 2;
@@ -306,7 +315,7 @@ export class AppComponent implements AfterViewInit {
       .on('end', () =>
         this.svg.call(
           this.zoomListener.transform,
-          d3.zoomIdentity.translate(x, y).scale(scale)
+          zoomIdentity.translate(x, y).scale(scale)
         )
       );
     // this.zoomListener.scale(scale);
@@ -431,14 +440,14 @@ export class AppComponent implements AfterViewInit {
       }
     };
     childCount(0, this.crudService.data);
-    let newHeight = d3.max(levelWidth) * 25; // 25 pixels per line
+    let newHeight = max(levelWidth) * 25; // 25 pixels per line
     this.d3tree = this.d3tree
       .size([newHeight, window.innerWidth])
       .nodeSize([50, 200])
       .separation((a, b) => (a.parent == b.parent ? 1 : 1.25));
 
     // Compute the new tree layout.
-    this.root = this.d3tree(d3.hierarchy(this.crudService.data));
+    this.root = this.d3tree(hierarchy(this.crudService.data));
     this.sort();
     const nodes: MessageNode[] = this.root.descendants();
     const links = this.root.links();
@@ -467,7 +476,7 @@ export class AppComponent implements AfterViewInit {
           picture: d.data.picture,
           timestamp: d.data.timestamp,
         };
-        let newHierarchy = d3.hierarchy(tempData);
+        let newHierarchy = hierarchy(tempData);
         newHierarchy.sum(() => 1);
         d.popularity = newHierarchy.value;
       }
