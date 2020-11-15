@@ -46,8 +46,8 @@ export class AppComponent implements AfterViewInit {
   // d3 set up
   d3tree = tree<Message>().size([1000, 1000]);
   diagonal = linkHorizontal()
-    .x((d) => d[1])
-    .y((d) => d[0]); // node paths
+    .x((d) => d[0])
+    .y((d) => d[1]); // node paths
   root: MessageNode;
   // svg-related objects
   svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
@@ -129,9 +129,9 @@ export class AppComponent implements AfterViewInit {
       // TODO: get coords of mouseEvent relative to svg container to allow for panning
       // relCoords = event.pageX
 
-      d.x0 += event.dy;
-      d.y0 += event.dx;
-      select(g).attr('transform', 'translate(' + d.y0 + ',' + d.x0 + ')');
+      d.x0 += event.dx;
+      d.y0 += event.dy;
+      select(g).attr('transform', 'translate(' + d.x0 + ',' + d.y0 + ')');
 
       this.updateTempConnector(d);
     };
@@ -289,10 +289,10 @@ export class AppComponent implements AfterViewInit {
   centerNode(source: MessageNode) {
     if (!(source && this.svg && this.svgGroup)) return;
     let scale = zoomTransform(this.svg.node()).k;
-    let x = -source.y;
-    let y = -source.x;
-    x = x * scale + window.innerWidth / 2;
-    y = y * scale + window.innerHeight / 2;
+    let x = -source.x;
+    let y = -source.y;
+    x = x * scale + window.innerHeight / 2;
+    y = y * scale + window.innerWidth / 2;
 
     this.svgGroup
       .transition()
@@ -407,22 +407,22 @@ export class AppComponent implements AfterViewInit {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
-    let levelWidth = [1];
+    let levelHeight = [1];
     let childCount = function (level, n) {
       if (n.children && n.children.length > 0) {
-        if (levelWidth.length <= level + 1) levelWidth.push(0);
+        if (levelHeight.length <= level + 1) levelHeight.push(0);
 
-        levelWidth[level + 1] += n.children.length;
+        levelHeight[level + 1] += n.children.length;
         n.children.forEach(function (d) {
           childCount(level + 1, d);
         });
       }
     };
     childCount(0, this.crudService.data);
-    let newHeight = max(levelWidth) * 25; // 25 pixels per line
+    let newHeight = max(levelHeight) * 10; // 25 pixels per line
     this.d3tree = this.d3tree
       .size([newHeight, window.innerWidth])
-      .nodeSize([50, 200])
+      .nodeSize([210, 50])
       .separation((a, b) => (a.parent == b.parent ? 1 : 1.25));
 
     // Compute the new tree layout.
@@ -437,7 +437,7 @@ export class AppComponent implements AfterViewInit {
     // Reverse the array so that the leaves get its popularity first
     nodes.reverse().forEach((d) => {
       // Set widths between levels based on maxLabelLength.
-      d.y = d.depth * (this.crudService.maxLabelLength * 10);
+      d.y = d.depth * (this.crudService.maxLabelLength * 2);
       // Set individual popularity
       d.data.popularity = 1;
 
@@ -480,7 +480,7 @@ export class AppComponent implements AfterViewInit {
             .attr('class', 'node')
             .attr(
               'transform',
-              () => 'translate(' + source.y + ',' + source.x + ')'
+              () => 'translate(' + source.x + ',' + source.y + ')'
             )
             .attr('id', (d) => d.data.id)
             // rect enter
@@ -544,7 +544,7 @@ export class AppComponent implements AfterViewInit {
               // to update if removing node
               .attr(
                 'transform',
-                (d) => 'translate(' + d.parent.y + ',' + d.parent.x + ')'
+                (d) => 'translate(' + d.parent.x + ',' + d.parent.y + ')'
               )
               .style('opacity', 0)
               .remove()
@@ -579,7 +579,7 @@ export class AppComponent implements AfterViewInit {
       .transition()
       .duration(this.duration)
       .attr('transform', (d) => {
-        return 'translate(' + d.y + ',' + d.x + ')';
+        return 'translate(' + d.x + ',' + d.y + ')';
       });
 
     node.select('rect').style('fill-opacity', 1);
