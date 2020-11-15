@@ -5,5 +5,8 @@ export class Message {
   name: string;
   picture?: string;
   timestamp?: string;
+
+  // virtual
   _children?: Message[];
+  popularity?: number;
 }

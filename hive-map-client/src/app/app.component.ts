@@ -14,6 +14,7 @@ import {
   zoomTransform,
   zoomIdentity,
   max,
+  HierarchyNode,
 } from 'd3';
 import { MessageNode } from './classes/message-node';
 import { CrudService } from './crud.service';
@@ -59,7 +60,7 @@ export class AppComponent implements AfterViewInit {
   // drag
   dragListener;
   // variables for drag/drop
-  targetNode = null;
+  targetNode: MessageNode = null;
   dragStarted = false;
   relCoords;
   // panning variables
@@ -146,7 +147,7 @@ export class AppComponent implements AfterViewInit {
 
       if (this.targetNode) {
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
-        this.expand(this.targetNode);
+        this.expand(this.targetNode.data);
         this.crudService.dragChild(d.parent, this.targetNode, d);
 
         this.endDrag(d, g);
@@ -311,28 +312,20 @@ export class AppComponent implements AfterViewInit {
   /*************************************************************************/
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
-  collapse(d: MessageNode) {
-    let collapse = (m: Message) => {
-      if (m.children) {
-        m._children = m.children;
-        // TODO: fix bug check
-        m.children.forEach(collapse);
-        m.children = null;
-      }
-    };
-    collapse(d.data);
+  collapse(m: Message) {
+    if (m.children) {
+      m._children = m.children;
+      m.children.forEach((m) => this.collapse(m));
+      m.children = null;
+    }
   }
 
-  expand(d: MessageNode) {
-    let expand = (m: Message) => {
-      if (m._children) {
-        m.children = m._children;
-        // TODO: fix bug check
-        m.children.forEach(expand);
-        m._children = null;
-      }
-    };
-    expand(d.data);
+  expand(m: Message) {
+    if (m._children) {
+      m.children = m._children;
+      m.children.forEach((m) => this.expand(m));
+      m._children = null;
+    }
   }
 
   toggleChildren(d: MessageNode) {
@@ -357,7 +350,7 @@ export class AppComponent implements AfterViewInit {
 
   // Select to chat on click
   clickToChat(event, d: MessageNode) {
-    // console.log('clicked', d);
+    console.log('clicked', d);
     if (event.defaultPrevented) return; // click suppressed
     this.centerNode(d);
     this.selectNode(d);
@@ -451,38 +444,39 @@ export class AppComponent implements AfterViewInit {
     // TODO: have a quartile to decide higher popularity, instead of just one highest
     this.highestPopularity = 0;
     // Set widths between levels based on maxLabelLength.
-    nodes.forEach((d) => {
-      d.sum((d) => 1);
+    nodes.reverse().forEach((d) => {
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
-      // alternatively to keep a fixed scale one can set a fixed depth per level
-      // Normalize for fixed-depth by commenting out below line
-      // d.y = d.depth * 500; //500px per level.
+      // Set individual popularity
+      d.data.popularity = 1;
 
-      // use value as popularity
-      d.popularity = d.value;
-      // if collapsed, recreate the collapsed hierarchy to count its node
+      // If collapsed, recreate the collapsed hierarchy to set tallied popularity
+      let newPopularity = 1;
       if (d.data._children) {
         let tempData = new Message();
         tempData = {
           id: d.data.id,
           text: d.data.text,
-          children: d.data._children,
+          _children: d.data._children,
           name: d.data.name,
           picture: d.data.picture,
           timestamp: d.data.timestamp,
         };
+        this.expand(tempData);
         let newHierarchy = hierarchy(tempData);
         newHierarchy.sum(() => 1);
-        d.popularity = newHierarchy.value;
+        newPopularity = newHierarchy.value;
       }
-      console.log(d.popularity, d);
+      d.data.popularity = Math.max(newPopularity, d.data.popularity);
+      d.sum((m) => m.popularity);
 
       // update highest popularity, except for root node
-      if (d.popularity > this.highestPopularity && d.depth !== 0)
-        this.highestPopularity = d.popularity;
+      if (d.value > this.highestPopularity && d.depth !== 0)
+        this.highestPopularity = d.value;
+      console.log(this.highestPopularity);
 
       return d.data.id;
     });
+
     // Update the nodes…
     let node = this.svgGroup
       .selectAll<SVGGElement, {}>('g.node')
@@ -573,7 +567,7 @@ export class AppComponent implements AfterViewInit {
     let expandG = node
       .select('g.expand')
       .style('display', (d) => (d.data._children ? 'inline' : 'none'));
-    expandG.select('text').text((d) => `+${d.popularity - 1}`);
+    expandG.select('text').text((d) => `+${d.value - 1}`);
 
     // All ghost circles will get its latest positions
     node
@@ -705,7 +699,7 @@ export class AppComponent implements AfterViewInit {
     // Style different nodes
     // popular node(s) is/are orange
     let popular = node.filter(
-      (d) => d.depth > 0 && d.popularity >= this.highestPopularity
+      (d) => d.depth > 0 && d.value >= this.highestPopularity
     );
     popular.select('rect').transition().duration(250).style('fill', 'orange');
     popular
@@ -715,7 +709,7 @@ export class AppComponent implements AfterViewInit {
       .style('fill', 'black');
     // normal nodes are black
     let regular = node.filter(
-      (d) => d.depth === 0 || !(d.popularity >= this.highestPopularity)
+      (d) => d.depth === 0 || !(d.value >= this.highestPopularity)
     );
     regular.select('rect').transition().duration(250).style('fill', 'black');
     regular.select('text.message').style('fill', 'white');
