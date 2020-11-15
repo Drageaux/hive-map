@@ -312,17 +312,18 @@ export class AppComponent implements AfterViewInit {
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
   collapse(d: MessageNode) {
-    if (m.children) {
-      m._children = m.children;
-      // TODO: fix bug check
-      m.children.forEach(this.collapse);
-      m.children = null;
-    }
+    let collapse = (m: Message) => {
+      if (m.children) {
+        m._children = m.children;
+        // TODO: fix bug check
+        m.children.forEach(collapse);
+        m.children = null;
+      }
+    };
+    collapse(d.data);
   }
 
   expand(d: MessageNode) {
-    console.log('expand', d);
-
     let expand = (m: Message) => {
       if (m._children) {
         m.children = m._children;
@@ -332,13 +333,6 @@ export class AppComponent implements AfterViewInit {
       }
     };
     expand(d.data);
-
-    // if (d.data._children) {
-    //   d.data.children = d.data._children;
-    //   // TODO: fix bug check
-    //   d.children.forEach(this.expand);
-    //   d.data._children = null;
-    // }
   }
 
   toggleChildren(d: MessageNode) {
