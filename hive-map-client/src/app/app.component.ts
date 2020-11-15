@@ -168,7 +168,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   resizeSvg($event?) {
-    console.log($event);
     // size of the diagram
     let viewerWidth = window.innerWidth;
     let viewerHeight = window.innerHeight;
@@ -234,7 +233,7 @@ export class AppComponent implements AfterViewInit {
     select(g).attr('class', 'node');
     // now restore the mouseover event or we won't be able to drag a 2nd time
     select(g).select('.ghostCircle').attr('pointer-events', '');
-    this.update(this.root);
+    if (this.mode === 'drag') this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
     this.updateTempConnector(updatedNode);
     this.centerNode(updatedNode);
@@ -315,7 +314,7 @@ export class AppComponent implements AfterViewInit {
   collapse(d: MessageNode) {
     if (d.data.children) {
       d.data._children = d.data.children;
-      // TODO: bug check
+      // TODO: fix bug check
       d.children.forEach(this.collapse);
       d.data.children = null;
     }
@@ -325,7 +324,7 @@ export class AppComponent implements AfterViewInit {
     console.log(d);
     if (d.data._children) {
       d.data.children = d.data._children;
-      // TODO: bug check
+      // TODO: fix bug check
       d.children.forEach(this.expand);
       d.data._children = null;
     }
@@ -353,6 +352,7 @@ export class AppComponent implements AfterViewInit {
 
   // Select to chat on click
   clickToChat(event, d: MessageNode) {
+    // console.log('clicked', d);
     if (event.defaultPrevented) return; // click suppressed
     this.centerNode(d);
     this.selectNode(d);
@@ -447,7 +447,7 @@ export class AppComponent implements AfterViewInit {
     this.highestPopularity = 0;
     // Set widths between levels based on maxLabelLength.
     nodes.forEach((d) => {
-      d.sum(() => 1);
+      d.sum((d) => 1);
       d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
       // alternatively to keep a fixed scale one can set a fixed depth per level
       // Normalize for fixed-depth by commenting out below line
@@ -470,6 +470,7 @@ export class AppComponent implements AfterViewInit {
         newHierarchy.sum(() => 1);
         d.popularity = newHierarchy.value;
       }
+      console.log(d.popularity, d);
 
       // update highest popularity, except for root node
       if (d.popularity > this.highestPopularity && d.depth !== 0)
@@ -600,7 +601,6 @@ export class AppComponent implements AfterViewInit {
       .style('font-size', '0.8rem')
       .attr('x', -80)
       .attr('dy', '.35em')
-      .style('fill', 'white')
       .text((d) => d.data.text)
       // Fade the text in
       .transition()
@@ -698,8 +698,6 @@ export class AppComponent implements AfterViewInit {
 
   setNodeColor(node) {
     // Style different nodes
-    // normal nodes are black
-    node.select('rect').transition().duration(250).style('fill', 'black');
     // popular node(s) is/are orange
     let popular = node.filter(
       (d) => d.depth > 0 && d.popularity >= this.highestPopularity
@@ -710,6 +708,12 @@ export class AppComponent implements AfterViewInit {
       .transition()
       .duration(250)
       .style('fill', 'black');
+    // normal nodes are black
+    let regular = node.filter(
+      (d) => d.depth === 0 || !(d.popularity >= this.highestPopularity)
+    );
+    regular.select('rect').transition().duration(250).style('fill', 'black');
+    regular.select('text.message').style('fill', 'white');
     // this user's messages are blue
     let userMessages = node.filter((d) => d.data.name === this.username);
     userMessages
