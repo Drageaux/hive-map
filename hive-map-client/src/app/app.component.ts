@@ -151,7 +151,6 @@ export class AppComponent implements AfterViewInit {
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
         this.expand(this.targetNode.data);
         this.crudService.dragChild(d.parent, this.targetNode, d);
-
         this.endDrag(d, g);
       } else {
         this.endDrag(d, g);
@@ -239,7 +238,8 @@ export class AppComponent implements AfterViewInit {
     if (this.mode === 'drag') this.update(this.root);
     let updatedNode = this.root.find((e) => e.data.id === d.data.id);
     this.updateTempConnector(updatedNode);
-    this.centerNode(updatedNode);
+    // this.centerNode(updatedNode);
+    this.clickToChat(null, updatedNode);
   }
 
   sort() {
@@ -354,7 +354,7 @@ export class AppComponent implements AfterViewInit {
   // Select to chat on click
   clickToChat(event, d: MessageNode) {
     console.log('clicked', d);
-    if (event.defaultPrevented) return; // click suppressed
+    if (event && event.defaultPrevented) return; // click suppressed
     this.centerNode(d);
     this.selectNode(d);
   }
@@ -494,7 +494,7 @@ export class AppComponent implements AfterViewInit {
               g
                 .append('rect')
                 .attr('y', -20)
-                .attr('x', -100)
+                .attr('x', -175)
                 .attr('width', 350)
                 .attr('height', 40)
                 .style('fill-opacity', 0)
@@ -505,7 +505,7 @@ export class AppComponent implements AfterViewInit {
               let expand = g
                 .append('g')
                 .attr('class', 'expand')
-                .attr('transform', 'translate(100, -20)');
+                .attr('transform', 'translate(175, -20)');
               expand
                 .append('circle')
                 .attr('class', 'nodeCircle')
@@ -604,7 +604,7 @@ export class AppComponent implements AfterViewInit {
       .select('text.message')
       .style('font-family', "'Roboto Mono', monospace")
       .style('font-size', '0.8rem')
-      .attr('x', -80)
+      .attr('x', -155)
       .attr('dy', '.35em')
       .text((d) => d.data.text)
       // Fade the text in
