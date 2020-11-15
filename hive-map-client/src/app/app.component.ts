@@ -436,8 +436,10 @@ export class AppComponent implements AfterViewInit {
     this.highestPopularity = 0;
     // Reverse the array so that the leaves get its popularity first
     nodes.reverse().forEach((d) => {
+      // Limit text
+      d.data.text = d.data.text.substr(0, 40);
       // Set widths between levels based on maxLabelLength.
-      d.y = d.depth * (this.crudService.maxLabelLength * 10);
+      d.y = d.depth * (this.crudService.maxLabelLength * 8);
       // Set individual popularity
       d.data.popularity = 1;
 
@@ -489,7 +491,7 @@ export class AppComponent implements AfterViewInit {
                 .append('rect')
                 .attr('y', -20)
                 .attr('x', -100)
-                .attr('width', 200)
+                .attr('width', 350)
                 .attr('height', 40)
                 .style('fill-opacity', 0)
                 .style('rx', 15)
@@ -587,7 +589,7 @@ export class AppComponent implements AfterViewInit {
     // Update the text to reflect whether node has children or not.
     node
       .select('text.message')
-      .style('font-family', 'Public Sans, sans-serif')
+      .style('font-family', "'Roboto Mono', monospace")
       .style('font-size', '0.8rem')
       .attr('x', -80)
       .attr('dy', '.35em')
