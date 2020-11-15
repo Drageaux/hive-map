@@ -14,7 +14,6 @@ import {
   zoomTransform,
   zoomIdentity,
   max,
-  HierarchyNode,
 } from 'd3';
 import { MessageNode } from './classes/message-node';
 import { CrudService } from './crud.service';
@@ -377,13 +376,7 @@ export class AppComponent implements AfterViewInit {
     }
     let tempLink = this.svgGroup
       .selectAll<SVGPathElement, {}>('path.templink')
-      .data(data, (d: HierarchyPointLink<Message>) => {
-        console.log(
-          (({ x, y, data: { name } }) => ({ x, y, data: { name } }))(d.source),
-          (({ x, y, data: { name } }) => ({ x, y, data: { name } }))(d.target)
-        );
-        return d.target.data.id;
-      });
+      .data(data, (d: HierarchyPointLink<Message>) => d.target.data.id);
 
     tempLink
       .enter()
@@ -398,8 +391,6 @@ export class AppComponent implements AfterViewInit {
       .attr('pointer-events', 'none');
 
     tempLink.attr('d', (d: HierarchyPointLink<Message>) => {
-      console.log(d.source as MessageNode);
-      console.log(d.target as MessageNode);
       return this.diagonal({
         source: [(d.source as MessageNode).x0, (d.source as MessageNode).y0],
         target: [d.target.x, d.target.y],
@@ -443,9 +434,10 @@ export class AppComponent implements AfterViewInit {
     // Count popularity by summing all children recursively.
     // TODO: have a quartile to decide higher popularity, instead of just one highest
     this.highestPopularity = 0;
-    // Set widths between levels based on maxLabelLength.
+    // Reverse the array so that the leaves get its popularity first
     nodes.reverse().forEach((d) => {
-      d.y = d.depth * (this.crudService.maxLabelLength * 10); //maxLabelLength * 10px
+      // Set widths between levels based on maxLabelLength.
+      d.y = d.depth * (this.crudService.maxLabelLength * 10);
       // Set individual popularity
       d.data.popularity = 1;
 
@@ -472,7 +464,6 @@ export class AppComponent implements AfterViewInit {
       // update highest popularity, except for root node
       if (d.value > this.highestPopularity && d.depth !== 0)
         this.highestPopularity = d.value;
-      console.log(this.highestPopularity);
 
       return d.data.id;
     });
