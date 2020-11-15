@@ -145,10 +145,10 @@ export class AppComponent implements AfterViewInit {
       }
 
       if (this.targetNode) {
-        this.crudService.dragChild(d.parent, this.targetNode, d);
-
         // Make sure that the node being added to is expanded so user can see added node is correctly moved
         this.expand(this.targetNode);
+        this.crudService.dragChild(d.parent, this.targetNode, d);
+
         this.endDrag(d, g);
       } else {
         this.endDrag(d, g);
@@ -312,22 +312,33 @@ export class AppComponent implements AfterViewInit {
   /**************************** HELPER FUNCTIONS ***************************/
   /*************************************************************************/
   collapse(d: MessageNode) {
-    if (d.data.children) {
-      d.data._children = d.data.children;
+    if (m.children) {
+      m._children = m.children;
       // TODO: fix bug check
-      d.children.forEach(this.collapse);
-      d.data.children = null;
+      m.children.forEach(this.collapse);
+      m.children = null;
     }
   }
 
   expand(d: MessageNode) {
-    console.log(d);
-    if (d.data._children) {
-      d.data.children = d.data._children;
-      // TODO: fix bug check
-      d.children.forEach(this.expand);
-      d.data._children = null;
-    }
+    console.log('expand', d);
+
+    let expand = (m: Message) => {
+      if (m._children) {
+        m.children = m._children;
+        // TODO: fix bug check
+        m.children.forEach(expand);
+        m._children = null;
+      }
+    };
+    expand(d.data);
+
+    // if (d.data._children) {
+    //   d.data.children = d.data._children;
+    //   // TODO: fix bug check
+    //   d.children.forEach(this.expand);
+    //   d.data._children = null;
+    // }
   }
 
   toggleChildren(d: MessageNode) {
