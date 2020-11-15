@@ -35,6 +35,8 @@ export class AppComponent implements AfterViewInit {
   mode: 'chat' | 'drag' = 'chat';
   highestPopularity;
   currSearch = '';
+  mouseOverTimer;
+  canAutoFocus = false;
 
   // input
   @ViewChild('input') inputEl: ElementRef;
@@ -86,6 +88,7 @@ export class AppComponent implements AfterViewInit {
       });
     this.svg.call(this.zoomListener);
     this.svg.on('dblclick.zoom', null);
+    this.svg.on('mousemove', () => (this.canAutoFocus = true));
 
     // Define the dragListener for drag/drop behaviour of nodes.
     this.defineDragListener();
@@ -287,6 +290,7 @@ export class AppComponent implements AfterViewInit {
 
   // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
   centerNode(source: MessageNode) {
+    this.canAutoFocus = false;
     if (!(source && this.svg && this.svgGroup)) return;
     let scale = zoomTransform(this.svg.node()).k;
     let x = -source.y;
@@ -553,6 +557,15 @@ export class AppComponent implements AfterViewInit {
           )
       )
       .on('click', (event, d) => this.clickToChat(event, d))
+      .on('mouseover', (event, d) => {
+        if (!this.canAutoFocus) return;
+        clearTimeout(this.mouseOverTimer);
+        if (this.mode !== 'drag') {
+          this.mouseOverTimer = setTimeout(() => {
+            this.clickToChat(event, d);
+          }, 500);
+        }
+      })
       .call(this.dragListener)
       .on('dblclick', (event, d) => this.doubleClickCollapse(event, d));
 
