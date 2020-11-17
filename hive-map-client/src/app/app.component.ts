@@ -79,6 +79,12 @@ export class AppComponent implements AfterViewInit {
     this.resizeSvg();
 
     this.svgGroup = this.svg.append('g');
+    this.svgGroup
+      .append('circle')
+      .attr('r', 15)
+      .attr('class', 'core')
+      .attr('fill', 'red');
+    // .attr('transform', `translate(${window.innerWidth / 2}, 0)`);
 
     // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     this.zoomListener = zoom()
@@ -106,7 +112,7 @@ export class AppComponent implements AfterViewInit {
       event: D3DragEvent<SVGGElement, MessageNode, MessageNode>,
       d: MessageNode
     ): void => {
-      if (d === this.root || this.mode !== 'drag') {
+      if (this.mode !== 'drag') {
         // TODO: move root
         return;
       }
@@ -121,10 +127,12 @@ export class AppComponent implements AfterViewInit {
       event: D3DragEvent<SVGGElement, MessageNode, MessageNode>,
       d: MessageNode
     ) => {
-      if (d === this.root || this.mode !== 'drag') {
+      if (this.mode !== 'drag') {
         // TODO: move root
         return;
       }
+
+      // to move root, collapse root and move everybody
       if (this.dragStarted) {
         this.initiateDrag(d, g);
       }
@@ -144,6 +152,13 @@ export class AppComponent implements AfterViewInit {
       d: MessageNode
     ) => {
       if (d === this.root) {
+        // Move root
+        this.root.x = this.root.x0;
+        this.root.y = this.root.y0;
+        console.log(this.root);
+        this.update(this.root);
+        this.centerNode(this.root);
+        this.endDrag(d, g);
         return;
       }
 
@@ -211,7 +226,6 @@ export class AppComponent implements AfterViewInit {
         .data<MessageNode>(nodes, (d: MessageNode) => d.data.id)
         .filter((d) => d.data.id !== datum.data.id)
         .remove();
-      // remove child nodes
     }
 
     // remove parent link
@@ -353,7 +367,7 @@ export class AppComponent implements AfterViewInit {
 
   // Select to chat on click
   clickToChat(event, d: MessageNode) {
-    console.log('clicked', d);
+    // console.log('clicked', d);
     if (event && event.defaultPrevented) return; // click suppressed
     this.centerNode(d);
     this.selectNode(d);
@@ -407,7 +421,7 @@ export class AppComponent implements AfterViewInit {
   /*************************************************************************/
   /****************************** DATA UPDATE ******************************/
   /*************************************************************************/
-  update(source: MessageNode) {
+  update(source: MessageNode, offset?: number[]) {
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
     // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
     // This makes the layout more consistent.
@@ -431,6 +445,7 @@ export class AppComponent implements AfterViewInit {
 
     // Compute the new tree layout.
     this.root = this.d3tree(hierarchy(this.crudService.data));
+    console.log(this.root);
     this.sort();
     const nodes: MessageNode[] = this.root.descendants();
     const links = this.root.links();
